@@ -1,10 +1,12 @@
-import { LitElement, css, html } from "lit";
+import { LitElement, css, html, unsafeCSS } from "lit";
 import { customElement, state } from "lit/decorators.js";
 
 import "./employee-form.ts";
 import "./employee-details.ts";
 
 import type { Employee } from "./components/employee-table.ts";
+import { generateThemeCSSVariables } from "./theme/colors.js";
+import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "./theme/layout.js";
 
 @customElement("employee-page")
 export class EmployeePage extends LitElement {
@@ -17,21 +19,14 @@ export class EmployeePage extends LitElement {
   static styles = css`
     :host {
       display: block;
-
       width: 100%;
       min-height: 100vh;
-
       box-sizing: border-box;
-
-      background: #f8fafc;
-      color: #1f2937;
-
-      font-family:
-        Inter,
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        sans-serif;
+      ${unsafeCSS(generateThemeCSSVariables())}
+      ${unsafeCSS(generateLayoutCSSVariables())}
+      background: var(--color-background-secondary);
+      color: var(--color-text-primary);
+      font-family: ${unsafeCSS(LAYOUT_CONFIG.fontFamily)};
     }
 
     *,
@@ -43,131 +38,61 @@ export class EmployeePage extends LitElement {
     .page {
       width: 100%;
       min-height: 100vh;
-
-      padding: 32px;
+      padding: clamp(var(--spacing-lg), 5vw, var(--spacing-3xl));
+      display: flex;
+      flex-direction: column;
     }
 
     .page-container {
       width: 100%;
       max-width: 1400px;
-
       margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-2xl);
     }
 
     .page-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-
-      gap: 20px;
-
-      margin-bottom: 24px;
+      gap: var(--spacing-xl);
+      flex-wrap: wrap;
     }
 
     .page-title {
       min-width: 0;
+      flex: 1 1 auto;
     }
 
     h1 {
       margin: 0;
-
-      color: #111827;
-
-      font-size: 30px;
-      line-height: 1.2;
+      color: var(--color-text-primary);
+      font-size: clamp(var(--font-size-2xl), 5vw, var(--font-size-4xl));
+      line-height: var(--line-height-tight);
       font-weight: 700;
     }
 
     .page-description {
-      margin: 8px 0 0;
-
-      color: #6b7280;
-
-      font-size: 15px;
-      line-height: 1.5;
+      margin: var(--spacing-md) 0 0;
+      color: var(--color-text-secondary);
+      font-size: clamp(var(--font-size-sm), 3vw, var(--font-size-md));
+      line-height: var(--line-height-relaxed);
     }
 
     .page-content {
       display: flex;
       flex-direction: column;
-
       width: 100%;
       min-width: 0;
-
-      gap: 24px;
+      gap: var(--spacing-2xl);
     }
 
     employee-form,
     employee-details {
       display: block;
-
       width: 100%;
       min-width: 0;
-    }
-
-    @media (max-width: 900px) {
-      .page {
-        padding: 24px;
-      }
-
-      .page-header {
-        margin-bottom: 20px;
-      }
-
-      .page-content {
-        gap: 20px;
-      }
-
-      h1 {
-        font-size: 26px;
-      }
-    }
-
-    @media (max-width: 600px) {
-      .page {
-        padding: 16px;
-      }
-
-      .page-header {
-        flex-direction: column;
-        align-items: flex-start;
-
-        gap: 8px;
-
-        margin-bottom: 16px;
-      }
-
-      .page-content {
-        gap: 16px;
-      }
-
-      h1 {
-        font-size: 23px;
-      }
-
-      .page-description {
-        margin-top: 5px;
-
-        font-size: 14px;
-      }
-    }
-
-    @media (max-width: 380px) {
-      .page {
-        padding: 10px;
-      }
-
-      .page-content {
-        gap: 12px;
-      }
-
-      h1 {
-        font-size: 21px;
-      }
-
-      .page-description {
-        font-size: 13px;
-      }
     }
   `;
 

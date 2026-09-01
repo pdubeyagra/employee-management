@@ -1,5 +1,7 @@
-import { LitElement, css, html } from "lit";
+import { LitElement, css, html, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators.js";
+import { THEME_COLORS, generateThemeCSSVariables } from "../theme/colors.js";
+import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "../theme/layout.js";
 
 @customElement("confirm-dialog")
 export class ConfirmDialog extends LitElement {
@@ -23,18 +25,12 @@ export class ConfirmDialog extends LitElement {
     :host {
       position: contents;
       inset: 0;
-      z-index: 9999;
-
+      z-index: var(--z-modal);
       display: block;
-
-      font-family:
-        Inter,
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        sans-serif;
-
-      color: #1f2937;
+      ${unsafeCSS(generateThemeCSSVariables())}
+      ${unsafeCSS(generateLayoutCSSVariables())}
+      font-family: ${unsafeCSS(LAYOUT_CONFIG.fontFamily)};
+      color: var(--color-text-primary);
     }
 
     *,
@@ -43,67 +39,39 @@ export class ConfirmDialog extends LitElement {
       box-sizing: border-box;
     }
 
-    /* =========================
-       Backdrop
-       ========================= */
-
     .backdrop {
       position: fixed;
       inset: 0;
-
       display: flex;
       align-items: center;
       justify-content: center;
-
-      padding: 20px;
-
+      padding: clamp(var(--spacing-md), 4vw, var(--spacing-xl));
       background: rgba(17, 24, 39, 0.55);
-
       backdrop-filter: blur(2px);
       -webkit-backdrop-filter: blur(2px);
-
-      animation: fade-in 0.15s ease;
+      animation: fade-in var(--transition-base) ease;
     }
-
-    /* =========================
-       Dialog
-       ========================= */
 
     .dialog {
       width: 100%;
       max-width: 440px;
-
-      padding: 24px;
-
-      background: #ffffff;
-
-      border: 1px solid #e5e7eb;
-      border-radius: 14px;
-
-      box-shadow:
-        0 20px 25px -5px rgba(0, 0, 0, 0.1),
-        0 10px 10px -5px rgba(0, 0, 0, 0.04);
-
-      animation: dialog-in 0.15s ease;
+      padding: clamp(var(--spacing-xl), 4vw, var(--spacing-2xl));
+      background: var(--color-background);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      animation: dialog-in var(--transition-base) ease;
     }
-
-    /* =========================
-       Icon
-       ========================= */
 
     .icon-wrapper {
       display: flex;
       align-items: center;
       justify-content: center;
-
-      width: 44px;
-      height: 44px;
-
-      margin-bottom: 16px;
-
-      color: #dc2626;
-      background: #fef2f2;
-
+      width: clamp(40px, 8vw, 44px);
+      height: clamp(40px, 8vw, 44px);
+      margin-bottom: var(--spacing-lg);
+      color: var(--color-danger);
+      background: ${unsafeCSS(THEME_COLORS.danger[50])};
       border-radius: 50%;
     }
 
@@ -112,63 +80,44 @@ export class ConfirmDialog extends LitElement {
       height: 22px;
     }
 
-    /* =========================
-       Content
-       ========================= */
-
     .title {
-      margin: 0 0 8px;
-
-      color: #111827;
-
-      font-size: 20px;
-      line-height: 1.3;
+      margin: 0 0 var(--spacing-md);
+      color: var(--color-text-primary);
+      font-size: clamp(var(--font-size-lg), 4vw, var(--font-size-xl));
+      line-height: var(--line-height-normal);
       font-weight: 700;
     }
 
     .message {
       margin: 0;
-
-      color: #6b7280;
-
-      font-size: 14px;
-      line-height: 1.6;
-
+      color: var(--color-text-secondary);
+      font-size: clamp(var(--font-size-sm), 2vw, var(--font-size-base));
+      line-height: var(--line-height-relaxed);
       overflow-wrap: anywhere;
     }
-
-    /* =========================
-       Actions
-       ========================= */
 
     .actions {
       display: flex;
       justify-content: flex-end;
       align-items: center;
-
-      gap: 10px;
-
-      margin-top: 24px;
+      flex-wrap: wrap;
+      gap: var(--spacing-md);
+      margin-top: var(--spacing-2xl);
     }
 
     button {
-      min-height: 40px;
-
-      padding: 9px 16px;
-
-      border-radius: 8px;
-
+      min-height: clamp(36px, 6vw, 40px);
+      padding: var(--spacing-md) var(--spacing-lg);
+      border-radius: var(--radius-md);
       font-family: inherit;
-      font-size: 14px;
+      font-size: clamp(var(--font-size-sm), 2vw, var(--font-size-base));
       font-weight: 600;
-
       cursor: pointer;
-
       transition:
-        background-color 0.15s ease,
-        border-color 0.15s ease,
-        color 0.15s ease,
-        transform 0.1s ease;
+        background-color var(--transition-base),
+        border-color var(--transition-base),
+        color var(--transition-base),
+        transform var(--transition-base);
     }
 
     button:active {
@@ -181,88 +130,90 @@ export class ConfirmDialog extends LitElement {
     }
 
     .cancel-button {
-      color: #374151;
-      background: #ffffff;
-
-      border: 1px solid #d1d5db;
+      color: var(--color-text-secondary);
+      background: var(--color-background);
+      border: 1px solid var(--color-border);
     }
 
     .cancel-button:hover {
-      background: #f9fafb;
-      border-color: #9ca3af;
+      background: var(--color-background-secondary);
+      border-color: var(--color-border-secondary);
     }
 
     .confirm-button {
-      color: #ffffff;
-      background: #dc2626;
-
-      border: 1px solid #dc2626;
+      color: var(--color-text-inverse);
+      background: var(--color-danger);
+      border: 1px solid var(--color-danger);
     }
 
     .confirm-button:hover {
-      background: #b91c1c;
-      border-color: #b91c1c;
+      background: var(--color-danger-hover);
+      border-color: var(--color-danger-hover);
     }
 
-    /* =========================
-       Mobile
-       ========================= */
+    @keyframes fade-in {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
 
-    @media (max-width: 600px) {
+    @keyframes dialog-in {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes dialog-mobile-in {
+      from {
+        opacity: 0;
+        transform: translateY(100%);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 640px) {
       .backdrop {
         align-items: flex-end;
-
         padding: 0;
       }
 
       .dialog {
         width: 100%;
         max-width: none;
-
-        padding: 22px 18px calc(18px + env(safe-area-inset-bottom));
-
-        border-radius: 16px 16px 0 0;
-
-        animation: dialog-mobile-in 0.2s ease;
-      }
-
-      .icon-wrapper {
-        width: 42px;
-        height: 42px;
-      }
-
-      .title {
-        font-size: 19px;
-      }
-
-      .message {
-        font-size: 14px;
+        padding: clamp(var(--spacing-md), 4vw, var(--spacing-xl))
+          clamp(var(--spacing-md), 3vw, var(--spacing-lg))
+          calc(
+            clamp(var(--spacing-md), 3vw, var(--spacing-lg)) +
+              env(safe-area-inset-bottom)
+          );
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        animation: dialog-mobile-in var(--transition-base) ease;
       }
 
       .actions {
         display: grid;
         grid-template-columns: 1fr 1fr;
-
-        gap: 10px;
-
-        margin-top: 22px;
+        margin-top: var(--spacing-xl);
       }
 
       button {
         width: 100%;
-        min-height: 44px;
+        min-height: clamp(40px, 8vw, 44px);
       }
     }
 
-    /* =========================
-       Small phones
-       ========================= */
-
     @media (max-width: 380px) {
-      .dialog {
-        padding: 20px 14px calc(14px + env(safe-area-inset-bottom));
-      }
-
       .actions {
         grid-template-columns: 1fr;
       }
@@ -272,10 +223,6 @@ export class ConfirmDialog extends LitElement {
       }
     }
 
-    /* =========================
-       Reduced motion
-       ========================= */
-
     @media (prefers-reduced-motion: reduce) {
       .backdrop,
       .dialog {
@@ -284,40 +231,6 @@ export class ConfirmDialog extends LitElement {
 
       button {
         transition: none;
-      }
-    }
-
-    @keyframes fade-in {
-      from {
-        opacity: 0;
-      }
-
-      to {
-        opacity: 1;
-      }
-    }
-
-    @keyframes dialog-in {
-      from {
-        opacity: 0;
-        transform: translateY(-8px) scale(0.98);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
-
-    @keyframes dialog-mobile-in {
-      from {
-        opacity: 0;
-        transform: translateY(100%);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
       }
     }
   `;

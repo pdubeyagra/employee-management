@@ -1,5 +1,7 @@
-import { LitElement, css, html } from "lit";
+import { LitElement, css, html, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators.js";
+import { generateThemeCSSVariables } from "../theme/colors.js";
+import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "../theme/layout.js";
 
 @customElement("pagination-control")
 export class PaginationControl extends LitElement {
@@ -27,14 +29,12 @@ export class PaginationControl extends LitElement {
       width: 100%;
       min-width: 0;
 
-      font-family:
-        Inter,
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        sans-serif;
+      font-family: ${unsafeCSS(LAYOUT_CONFIG.fontFamily)};
 
-      color: #374151;
+      color: var(--color-text-secondary);
+
+      ${unsafeCSS(generateThemeCSSVariables())}
+      ${unsafeCSS(generateLayoutCSSVariables())}
     }
 
     *,
@@ -47,38 +47,29 @@ export class PaginationControl extends LitElement {
       display: flex;
       align-items: center;
       justify-content: space-between;
-
+      flex-wrap: wrap;
       width: 100%;
       min-width: 0;
-
-      gap: 16px;
-      padding: 14px 4px;
+      gap: clamp(var(--spacing-sm), 2vw, var(--spacing-xl));
+      padding: var(--spacing-md) var(--spacing-sm);
     }
-
-    /* =========================
-       Item count
-       ========================= */
 
     .item-count {
       flex: 0 1 auto;
 
-      color: #6b7280;
+      color: var(--color-text-tertiary);
 
-      font-size: 13px;
-      line-height: 1.5;
+      font-size: clamp(var(--font-size-xs), 1.5vw, var(--font-size-sm));
+      line-height: var(--line-height-relaxed);
 
       white-space: nowrap;
     }
 
-    /* =========================
-       Controls
-       ========================= */
-
     .controls {
       display: flex;
       align-items: center;
-
-      gap: 5px;
+      flex-wrap: wrap;
+      gap: clamp(2px, 1vw, var(--spacing-md));
 
       min-width: 0;
     }
@@ -88,32 +79,32 @@ export class PaginationControl extends LitElement {
       align-items: center;
       justify-content: center;
 
-      min-width: 36px;
-      height: 36px;
+      min-width: clamp(32px, 5vw, 40px);
+      height: clamp(32px, 5vw, 40px);
 
-      padding: 0 10px;
+      padding: 0 clamp(4px, 1vw, var(--spacing-md));
 
-      color: #374151;
-      background: #ffffff;
+      color: var(--color-text-secondary);
+      background: var(--color-background);
 
-      border: 1px solid #d1d5db;
-      border-radius: 7px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
 
       font-family: inherit;
-      font-size: 13px;
+      font-size: clamp(var(--font-size-xs), 1.5vw, var(--font-size-sm));
       font-weight: 600;
 
       cursor: pointer;
 
       transition:
-        background-color 0.15s ease,
-        border-color 0.15s ease,
-        color 0.15s ease;
+        background-color var(--transition-fast) ease,
+        border-color var(--transition-fast) ease,
+        color var(--transition-fast) ease;
     }
 
     button:hover:not(:disabled) {
-      background: #f9fafb;
-      border-color: #9ca3af;
+      background: var(--color-background-secondary);
+      border-color: var(--color-text-secondary);
     }
 
     button:focus-visible {
@@ -122,28 +113,28 @@ export class PaginationControl extends LitElement {
     }
 
     button:disabled {
-      color: #d1d5db;
-      background: #f9fafb;
+      color: var(--color-border-secondary);
+      background: var(--color-background-secondary);
 
-      border-color: #e5e7eb;
+      border-color: var(--color-border);
 
       cursor: not-allowed;
     }
 
     .page-button.active {
-      color: #ffffff;
-      background: #2563eb;
-      border-color: #2563eb;
+      color: var(--color-text-inverse);
+      background: var(--color-primary);
+      border-color: var(--color-primary);
     }
 
     .page-button.active:hover {
-      background: #1d4ed8;
-      border-color: #1d4ed8;
+      background: var(--color-primary-hover);
+      border-color: var(--color-primary-hover);
     }
 
     .arrow {
-      width: 16px;
-      height: 16px;
+      width: clamp(14px, 2vw, 18px);
+      height: clamp(14px, 2vw, 18px);
     }
 
     .ellipsis {
@@ -151,84 +142,35 @@ export class PaginationControl extends LitElement {
       align-items: center;
       justify-content: center;
 
-      width: 30px;
-      height: 36px;
+      width: clamp(24px, 4vw, 32px);
+      height: clamp(32px, 5vw, 40px);
 
-      color: #6b7280;
+      color: var(--color-text-tertiary);
 
-      font-size: 14px;
+      font-size: clamp(var(--font-size-sm), 1.5vw, var(--font-size-base));
       user-select: none;
     }
-
-    /* =========================
-       Mobile current page
-       ========================= */
 
     .mobile-page {
       display: none;
     }
 
-    /* =========================
-       Tablet
-       ========================= */
-
-    @media (max-width: 700px) {
+    @media (max-width: 640px) {
       .pagination {
-        gap: 12px;
-      }
-
-      .item-count {
-        font-size: 12px;
-      }
-
-      button {
-        min-width: 34px;
-        height: 34px;
-
-        padding: 0 8px;
-      }
-    }
-
-    /* =========================
-       Mobile
-       ========================= */
-
-    @media (max-width: 600px) {
-      .pagination {
-        display: flex;
-        flex-wrap: wrap;
-
         justify-content: center;
-
-        gap: 10px;
-
-        padding: 14px 0;
       }
 
       .item-count {
         width: 100%;
-
-        flex: none;
-
         text-align: center;
-
         order: 1;
       }
 
       .controls {
         width: 100%;
-
         justify-content: center;
-
         order: 2;
-
-        gap: 6px;
       }
-
-      /*
-       * On mobile hide the long page list.
-       * Only previous/current/next are shown.
-       */
 
       .desktop-pages {
         display: none;
@@ -239,89 +181,25 @@ export class PaginationControl extends LitElement {
         align-items: center;
         justify-content: center;
 
-        min-width: 42px;
-        height: 40px;
+        min-width: clamp(36px, 5vw, 44px);
+        height: clamp(36px, 5vw, 44px);
 
-        padding: 0 10px;
+        padding: 0 clamp(4px, 1vw, var(--spacing-md));
 
-        color: #ffffff;
-        background: #2563eb;
+        color: var(--color-text-inverse);
+        background: var(--color-primary);
 
-        border: 1px solid #2563eb;
-        border-radius: 7px;
+        border: 1px solid var(--color-primary);
+        border-radius: var(--radius-md);
 
-        font-size: 13px;
+        font-size: clamp(var(--font-size-xs), 1.5vw, var(--font-size-sm));
         font-weight: 600;
-      }
-
-      button {
-        min-width: 42px;
-        height: 40px;
       }
 
       .first-last {
         display: none;
       }
-
-      .arrow {
-        width: 17px;
-        height: 17px;
-      }
     }
-
-    /* =========================
-       Small phones
-       ========================= */
-
-    @media (max-width: 380px) {
-      .pagination {
-        gap: 8px;
-      }
-
-      .controls {
-        gap: 5px;
-      }
-
-      button {
-        min-width: 40px;
-        height: 40px;
-
-        padding: 0 7px;
-      }
-
-      .mobile-page {
-        min-width: 40px;
-      }
-
-      .item-count {
-        font-size: 11px;
-      }
-    }
-
-    /* =========================
-       Very small screens
-       ========================= */
-
-    @media (max-width: 320px) {
-      .controls {
-        gap: 4px;
-      }
-
-      button {
-        min-width: 38px;
-        height: 38px;
-
-        padding: 0 6px;
-      }
-
-      .mobile-page {
-        min-width: 38px;
-      }
-    }
-
-    /* =========================
-       Reduced motion
-       ========================= */
 
     @media (prefers-reduced-motion: reduce) {
       button {

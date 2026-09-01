@@ -1,5 +1,7 @@
-import { LitElement, css, html } from "lit";
+import { LitElement, css, html, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators.js";
+import { generateThemeCSSVariables } from "../theme/colors.js";
+import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "../theme/layout.js";
 
 type ToastVariant = "success" | "error" | "info";
 
@@ -39,76 +41,69 @@ export class AppToast extends LitElement {
       z-index: 9999;
       pointer-events: none;
       box-sizing: border-box;
+      ${unsafeCSS(generateThemeCSSVariables())}
+      ${unsafeCSS(generateLayoutCSSVariables())}
+      font-family: ${unsafeCSS(LAYOUT_CONFIG.fontFamily)};
     }
 
-    /* -------------------------
-       Placement
-    ------------------------- */
-
     :host([placement="top-left"]) {
-      top: 24px;
-      left: 24px;
+      top: clamp(var(--spacing-sm), 2vw, var(--spacing-2xl));
+      left: clamp(var(--spacing-sm), 2vw, var(--spacing-2xl));
     }
 
     :host([placement="top-center"]) {
-      top: 24px;
+      top: clamp(var(--spacing-sm), 2vw, var(--spacing-2xl));
       left: 50%;
       transform: translateX(-50%);
     }
 
     :host([placement="top-right"]) {
-      top: 24px;
-      right: 24px;
+      top: clamp(var(--spacing-sm), 2vw, var(--spacing-2xl));
+      right: clamp(var(--spacing-sm), 2vw, var(--spacing-2xl));
     }
 
     :host([placement="bottom-left"]) {
-      bottom: 24px;
-      left: 24px;
+      bottom: clamp(var(--spacing-sm), 2vw, var(--spacing-2xl));
+      left: clamp(var(--spacing-sm), 2vw, var(--spacing-2xl));
     }
 
     :host([placement="bottom-center"]) {
-      bottom: 24px;
+      bottom: clamp(var(--spacing-sm), 2vw, var(--spacing-2xl));
       left: 50%;
       transform: translateX(-50%);
     }
 
     :host([placement="bottom-right"]) {
-      bottom: 24px;
-      right: 24px;
+      bottom: clamp(var(--spacing-sm), 2vw, var(--spacing-2xl));
+      right: clamp(var(--spacing-sm), 2vw, var(--spacing-2xl));
     }
-
-    /* -------------------------
-       Toast
-    ------------------------- */
 
     .toast {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: var(--spacing-md);
 
-      min-width: 280px;
-      max-width: min(420px, calc(100vw - 48px));
+      min-width: clamp(220px, 90vw, 420px);
+      max-width: calc(100vw - var(--spacing-2xl));
 
-      padding: 14px 16px;
+      padding: var(--spacing-md) var(--spacing-lg);
 
-      color: #ffffff;
+      color: var(--color-text-inverse);
 
-      border-radius: 10px;
+      border-radius: var(--radius-lg);
 
-      font-size: 14px;
+      font-size: clamp(var(--font-size-sm), 2vw, var(--font-size-base));
       font-weight: 500;
-      line-height: 1.4;
+      line-height: var(--line-height-normal);
 
-      box-shadow:
-        0 8px 24px rgba(0, 0, 0, 0.15),
-        0 2px 6px rgba(0, 0, 0, 0.08);
+      box-shadow: var(--shadow-lg);
 
       opacity: 0;
       transform: translateY(-10px);
 
       transition:
-        opacity 0.2s ease,
-        transform 0.2s ease;
+        opacity var(--transition-base) ease,
+        transform var(--transition-base) ease;
 
       pointer-events: none;
     }
@@ -126,10 +121,6 @@ export class AppToast extends LitElement {
     :host([placement^="bottom"]) .toast.open {
       transform: translateY(0);
     }
-
-    /* -------------------------
-       Icon
-    ------------------------- */
 
     .icon {
       display: inline-flex;
@@ -157,20 +148,12 @@ export class AppToast extends LitElement {
       stroke-linejoin: round;
     }
 
-    /* -------------------------
-       Message
-    ------------------------- */
-
     .message {
       flex: 1;
       min-width: 0;
 
       overflow-wrap: anywhere;
     }
-
-    /* -------------------------
-       Close button
-    ------------------------- */
 
     .close-button {
       display: flex;
@@ -185,7 +168,7 @@ export class AppToast extends LitElement {
       padding: 0;
 
       border: none;
-      border-radius: 4px;
+      border-radius: var(--radius-sm);
 
       color: inherit;
       background: transparent;
@@ -198,8 +181,8 @@ export class AppToast extends LitElement {
       opacity: 0.8;
 
       transition:
-        background-color 0.15s ease,
-        opacity 0.15s ease;
+        background-color var(--transition-fast) ease,
+        opacity var(--transition-fast) ease;
     }
 
     .close-button:hover {
@@ -208,65 +191,20 @@ export class AppToast extends LitElement {
     }
 
     .close-button:focus-visible {
-      outline: 2px solid #ffffff;
+      outline: 2px solid var(--color-text-inverse);
       outline-offset: 2px;
     }
 
-    /* -------------------------
-       Variants
-    ------------------------- */
-
     .success {
-      background: #16a34a;
+      background: var(--color-success);
     }
 
     .error {
-      background: #dc2626;
+      background: var(--color-danger);
     }
 
     .info {
-      background: #2563eb;
-    }
-
-    /* -------------------------
-       Mobile
-    ------------------------- */
-
-    @media (max-width: 600px) {
-      :host([placement="top-left"]),
-      :host([placement="top-center"]),
-      :host([placement="top-right"]) {
-        top: 16px;
-      }
-
-      :host([placement="bottom-left"]),
-      :host([placement="bottom-center"]),
-      :host([placement="bottom-right"]) {
-        bottom: 16px;
-      }
-
-      :host([placement="top-left"]),
-      :host([placement="bottom-left"]) {
-        left: 16px;
-      }
-
-      :host([placement="top-right"]),
-      :host([placement="bottom-right"]) {
-        right: 16px;
-      }
-
-      :host([placement="top-center"]),
-      :host([placement="bottom-center"]) {
-        left: 16px;
-        right: 16px;
-        transform: none;
-      }
-
-      .toast {
-        min-width: 0;
-        width: 100%;
-        max-width: none;
-      }
+      background: var(--color-primary);
     }
 
     @media (prefers-reduced-motion: reduce) {

@@ -1,5 +1,7 @@
-import { LitElement, css, html } from "lit";
+import { LitElement, css, html, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators.js";
+import { generateThemeCSSVariables } from "../theme/colors.js";
+import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "../theme/layout.js";
 
 export interface Employee {
   id: string;
@@ -21,15 +23,10 @@ export class EmployeeTable extends LitElement {
       max-width: 100%;
       min-width: 0;
       box-sizing: border-box;
-
-      font-family:
-        Inter,
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        sans-serif;
-
-      color: #1f2937;
+      ${unsafeCSS(generateThemeCSSVariables())}
+      ${unsafeCSS(generateLayoutCSSVariables())}
+      font-family: ${unsafeCSS(LAYOUT_CONFIG.fontFamily)};
+      color: var(--color-text-primary);
     }
 
     *,
@@ -44,15 +41,12 @@ export class EmployeeTable extends LitElement {
 
     .table-container {
       width: 100%;
-      max-width: 1200px;
-      margin: 10px auto;
-      padding: 24px;
-
-      background: #ffffff;
-      border: 1px solid #e5e7eb;
-      border-radius: 12px;
-
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      max-width: 100%;
+      padding: var(--spacing-2xl);
+      background: var(--color-background);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
     }
 
     /* =========================
@@ -63,106 +57,93 @@ export class EmployeeTable extends LitElement {
       display: flex;
       align-items: center;
       justify-content: space-between;
-
-      gap: 16px;
-      margin-bottom: 20px;
-
+      gap: var(--spacing-lg);
+      margin-bottom: var(--spacing-xl);
       min-width: 0;
+      flex-wrap: wrap;
     }
 
     h2 {
       margin: 0;
-
-      color: #111827;
-      font-size: 24px;
-      line-height: 1.25;
+      color: var(--color-text-primary);
+      font-size: clamp(var(--font-size-xl), 5vw, var(--font-size-3xl));
+      line-height: var(--line-height-tight);
       font-weight: 700;
+      flex: 1 1 auto;
+      min-width: 0;
     }
 
     .employee-count {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-
       min-height: 30px;
-      padding: 5px 10px;
-
-      color: #374151;
-      background: #f3f4f6;
-
-      border-radius: 999px;
-
-      font-size: 13px;
+      padding: var(--spacing-sm) var(--spacing-md);
+      color: var(--color-text-secondary);
+      background: var(--color-background-secondary);
+      border-radius: var(--radius-full);
+      font-size: var(--font-size-sm);
       line-height: 1;
       font-weight: 600;
-
       white-space: nowrap;
       flex-shrink: 0;
     }
 
     /* =========================
-       Table
+       Table Wrapper
        ========================= */
 
     .table-wrapper {
       width: 100%;
       max-width: 100%;
       overflow-x: auto;
-
-      border: 1px solid #e5e7eb;
-      border-radius: 10px;
-
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
       -webkit-overflow-scrolling: touch;
     }
+
+    /* =========================
+       Table Styling
+       ========================= */
 
     table {
       width: 100%;
       min-width: 800px;
-
       border-collapse: collapse;
       table-layout: fixed;
     }
 
     thead {
-      background: #f9fafb;
+      background: var(--color-background-secondary);
     }
 
     th {
-      padding: 14px 16px;
-
-      color: #374151;
-
-      font-size: 13px;
-      line-height: 1.4;
+      padding: var(--spacing-lg) var(--spacing-md);
+      color: var(--color-text-secondary);
+      font-size: var(--font-size-sm);
+      line-height: var(--line-height-normal);
       font-weight: 700;
-
       text-align: left;
-
-      border-bottom: 1px solid #e5e7eb;
+      border-bottom: 1px solid var(--color-border);
     }
 
     td {
-      padding: 15px 16px;
-
-      color: #4b5563;
-
-      font-size: 14px;
-      line-height: 1.5;
-
+      padding: var(--spacing-lg) var(--spacing-md);
+      color: var(--color-text-primary);
+      font-size: var(--font-size-base);
+      line-height: var(--line-height-relaxed);
       vertical-align: middle;
-
-      border-bottom: 1px solid #e5e7eb;
-
+      border-bottom: 1px solid var(--color-border);
       overflow-wrap: anywhere;
       word-break: break-word;
     }
 
     tbody tr {
-      transition: background-color 0.15s ease;
+      transition: background-color var(--transition-base);
     }
 
     tbody tr:hover {
-      background: #f9fafb;
+      background: var(--color-background-secondary);
     }
 
     tbody tr:last-child td {
@@ -170,7 +151,7 @@ export class EmployeeTable extends LitElement {
     }
 
     /* =========================
-       Column widths
+       Column Widths
        ========================= */
 
     th:nth-child(1),
@@ -199,16 +180,16 @@ export class EmployeeTable extends LitElement {
     }
 
     /* =========================
-       Cell styles
+       Cell Styles
        ========================= */
 
     .name {
-      color: #111827;
+      color: var(--color-text-primary);
       font-weight: 600;
     }
 
     .email {
-      color: #2563eb;
+      color: var(--color-primary);
     }
 
     /* =========================
@@ -218,69 +199,12 @@ export class EmployeeTable extends LitElement {
     .actions {
       display: flex;
       align-items: center;
-      gap: 8px;
-
+      gap: var(--spacing-md);
       white-space: nowrap;
     }
 
-    .action-button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-
-      min-height: 34px;
-      padding: 7px 11px;
-
-      border: 1px solid transparent;
-      border-radius: 7px;
-
-      font-family: inherit;
-      font-size: 13px;
-      line-height: 1;
-      font-weight: 600;
-
-      cursor: pointer;
-
-      transition:
-        background-color 0.15s ease,
-        border-color 0.15s ease,
-        color 0.15s ease,
-        transform 0.1s ease;
-    }
-
-    .action-button:active {
-      transform: translateY(1px);
-    }
-
-    .edit-button {
-      color: #1d4ed8;
-      background: #eff6ff;
-      border-color: #bfdbfe;
-    }
-
-    .edit-button:hover {
-      background: #dbeafe;
-      border-color: #93c5fd;
-    }
-
-    .delete-button {
-      color: #dc2626;
-      background: #fef2f2;
-      border-color: #fecaca;
-    }
-
-    .delete-button:hover {
-      background: #fee2e2;
-      border-color: #fca5a5;
-    }
-
-    .action-button:focus-visible {
-      outline: 3px solid rgba(37, 99, 235, 0.25);
-      outline-offset: 2px;
-    }
-
     /* =========================
-       Empty state
+       Empty State
        ========================= */
 
     .empty-state {
@@ -288,385 +212,265 @@ export class EmployeeTable extends LitElement {
       flex-direction: column;
       align-items: center;
       justify-content: center;
-
       min-height: 180px;
-      padding: 30px 20px;
-
-      color: #6b7280;
-
+      padding: var(--spacing-3xl) var(--spacing-xl);
+      color: var(--color-text-secondary);
       text-align: center;
-
-      border: 1px solid #e5e7eb;
-      border-radius: 10px;
-      background: #f9fafb;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      background: var(--color-background-secondary);
     }
 
     .empty-title {
-      margin: 0 0 6px;
-
-      color: #374151;
-
-      font-size: 15px;
+      margin: 0 0 var(--spacing-sm);
+      color: var(--color-text-secondary);
+      font-size: var(--font-size-md);
       font-weight: 600;
     }
 
     .empty-description {
       margin: 0;
-
-      color: #9ca3af;
-
-      font-size: 13px;
+      color: var(--color-text-tertiary);
+      font-size: var(--font-size-sm);
     }
 
     /* =========================
-       Tablet
+       Responsive: Mobile Card Layout
+       Uses container queries concept with flexbox
        ========================= */
 
-    @media (max-width: 900px) {
-      .table-container {
-        padding: 20px;
-      }
-
-      .table-header {
-        margin-bottom: 16px;
-      }
-
-      h2 {
-        font-size: 22px;
-      }
-
-      th {
-        padding: 12px;
-        font-size: 12px;
-      }
-
-      td {
-        padding: 13px 12px;
-        font-size: 13px;
-      }
-
-      table {
-        min-width: 760px;
-      }
-
-      .action-button {
-        min-height: 32px;
-        padding: 6px 9px;
-        font-size: 12px;
-      }
-    }
-
-    /* =========================
-       Mobile
-       ========================= */
-
-    @media (max-width: 600px) {
-      .table-container {
-        width: 100%;
-        max-width: none;
-
-        margin: 0;
-        padding: 14px;
-
-        border: none;
-        border-radius: 0;
-
-        box-shadow: none;
-      }
-
-      .table-header {
-        align-items: center;
-
-        margin-bottom: 14px;
-        gap: 10px;
-      }
-
-      h2 {
-        min-width: 0;
-
-        font-size: 20px;
-
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-
-      .employee-count {
-        min-height: 28px;
-        padding: 5px 8px;
-
-        font-size: 12px;
-      }
-
-      /*
-       * Mobile card layout.
-       */
-
+    @supports (container-type: inline-size) {
       .table-wrapper {
-        width: 100%;
-        max-width: 100%;
-
-        overflow: visible;
-
-        border: none;
-        border-radius: 0;
+        container-type: inline-size;
       }
 
-      table,
-      thead,
-      tbody,
-      tr,
-      th,
-      td {
-        display: block;
-        width: 100%;
+      @container (max-width: 600px) {
+        .table-wrapper {
+          overflow: visible;
+          border: none;
+          border-radius: 0;
+        }
+
+        table,
+        thead,
+        tbody,
+        tr,
+        th,
+        td {
+          display: block;
+          width: 100%;
+        }
+
+        table {
+          min-width: 0;
+        }
+
+        thead {
+          display: none;
+        }
+
+        tbody {
+          display: flex;
+          flex-direction: column;
+          gap: var(--spacing-md);
+        }
+
+        tbody tr {
+          display: block;
+          padding: var(--spacing-lg);
+          background: var(--color-background);
+          border: 1px solid var(--color-border);
+          border-radius: var(--radius-md);
+          box-shadow: var(--shadow-sm);
+        }
+
+        tbody tr:hover {
+          background: var(--color-background);
+        }
+
+        td {
+          display: grid;
+          grid-template-columns: 90px minmax(0, 1fr);
+          gap: var(--spacing-md);
+          padding: var(--spacing-md) 0;
+          border: none;
+          font-size: var(--font-size-base);
+          text-align: left;
+        }
+
+        td:first-child {
+          padding-top: 0;
+        }
+
+        td:last-child {
+          padding-bottom: 0;
+        }
+
+        td::before {
+          color: var(--color-text-tertiary);
+          font-size: var(--font-size-xs);
+          line-height: var(--line-height-relaxed);
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+        }
+
+        td:nth-child(1)::before {
+          content: "Name";
+        }
+
+        td:nth-child(2)::before {
+          content: "Department";
+        }
+
+        td:nth-child(3)::before {
+          content: "Designation";
+        }
+
+        td:nth-child(4)::before {
+          content: "Email";
+        }
+
+        td:nth-child(5)::before {
+          content: "Actions";
+        }
+
+        .name {
+          font-size: var(--font-size-base);
+        }
+
+        .email {
+          min-width: 0;
+          overflow-wrap: anywhere;
+          word-break: break-word;
+        }
+
+        .actions {
+          display: flex;
+          flex-wrap: wrap;
+          gap: var(--spacing-md);
+          width: 100%;
+          min-width: 0;
+        }
+
+        .empty-state {
+          min-height: 150px;
+          padding: var(--spacing-2xl) var(--spacing-lg);
+        }
       }
+    }
 
-      table {
-        min-width: 0;
-      }
+    /* Fallback for browsers without container queries */
+    @supports not (container-type: inline-size) {
+      @media (max-width: 600px) {
+        .table-wrapper {
+          overflow: visible;
+          border: none;
+          border-radius: 0;
+        }
 
-      thead {
-        display: none;
-      }
+        table,
+        thead,
+        tbody,
+        tr,
+        th,
+        td {
+          display: block;
+          width: 100%;
+        }
 
-      tbody {
-        display: flex;
-        flex-direction: column;
+        table {
+          min-width: 0;
+        }
 
-        width: 100%;
-        gap: 12px;
-      }
+        thead {
+          display: none;
+        }
 
-      tbody tr {
-        display: block;
-        width: 100%;
-        min-width: 0;
+        tbody {
+          display: flex;
+          flex-direction: column;
+          gap: var(--spacing-md);
+        }
 
-        padding: 15px;
+        tbody tr {
+          display: block;
+          padding: var(--spacing-lg);
+          background: var(--color-background);
+          border: 1px solid var(--color-border);
+          border-radius: var(--radius-md);
+          box-shadow: var(--shadow-sm);
+        }
 
-        background: #ffffff;
+        tbody tr:hover {
+          background: var(--color-background);
+        }
 
-        border: 1px solid #e5e7eb;
-        border-radius: 10px;
+        td {
+          display: grid;
+          grid-template-columns: 90px minmax(0, 1fr);
+          gap: var(--spacing-md);
+          padding: var(--spacing-md) 0;
+          border: none;
+          font-size: var(--font-size-base);
+        }
 
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
-      }
+        td:first-child {
+          padding-top: 0;
+        }
 
-      tbody tr:hover {
-        background: #ffffff;
-      }
+        td:last-child {
+          padding-bottom: 0;
+        }
 
-      td {
-        display: grid;
+        td::before {
+          color: var(--color-text-tertiary);
+          font-size: var(--font-size-xs);
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+        }
 
-        /*
-         * Label column + flexible content column.
-         * minmax(0, 1fr) is important for preventing
-         * long emails from overflowing.
-         */
-        grid-template-columns: 90px minmax(0, 1fr);
+        td:nth-child(1)::before {
+          content: "Name";
+        }
 
-        gap: 10px;
+        td:nth-child(2)::before {
+          content: "Department";
+        }
 
-        width: 100%;
-        min-width: 0;
+        td:nth-child(3)::before {
+          content: "Designation";
+        }
 
-        padding: 7px 0;
+        td:nth-child(4)::before {
+          content: "Email";
+        }
 
-        border: none;
+        td:nth-child(5)::before {
+          content: "Actions";
+        }
 
-        font-size: 14px;
-        line-height: 1.5;
+        .actions {
+          display: flex;
+          flex-wrap: wrap;
+          gap: var(--spacing-md);
+          width: 100%;
+        }
 
-        text-align: left;
-
-        overflow-wrap: anywhere;
-        word-break: break-word;
-      }
-
-      td:first-child {
-        padding-top: 0;
-      }
-
-      td:last-child {
-        padding-bottom: 0;
-      }
-
-      /*
-       * Mobile labels.
-       */
-
-      td::before {
-        color: #6b7280;
-
-        font-size: 10px;
-        line-height: 1.5;
-        font-weight: 700;
-
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-      }
-
-      td:nth-child(1)::before {
-        content: "Name";
-      }
-
-      td:nth-child(2)::before {
-        content: "Department";
-      }
-
-      td:nth-child(3)::before {
-        content: "Designation";
-      }
-
-      td:nth-child(4)::before {
-        content: "Email";
-      }
-
-      td:nth-child(5)::before {
-        content: "Actions";
-      }
-
-      .name {
-        font-size: 14px;
-      }
-
-      .email {
-        min-width: 0;
-
-        overflow-wrap: anywhere;
-        word-break: break-word;
-      }
-
-      /*
-       * Mobile action buttons.
-       */
-
-      .actions {
-        display: flex;
-        flex-wrap: wrap;
-
-        gap: 8px;
-
-        width: 100%;
-        min-width: 0;
-      }
-
-      .action-button {
-        flex: 1 1 90px;
-
-        min-height: 40px;
-        padding: 9px 12px;
-
-        font-size: 13px;
-      }
-
-      .empty-state {
-        min-height: 150px;
-        padding: 24px 16px;
+        .empty-state {
+          min-height: 150px;
+          padding: var(--spacing-2xl) var(--spacing-lg);
+        }
       }
     }
 
     /* =========================
-       Small phones
-       ========================= */
-
-    @media (max-width: 380px) {
-      .table-container {
-        padding: 12px;
-      }
-
-      .table-header {
-        align-items: flex-start;
-      }
-
-      h2 {
-        font-size: 19px;
-      }
-
-      .employee-count {
-        font-size: 11px;
-      }
-
-      tbody {
-        gap: 10px;
-      }
-
-      tbody tr {
-        padding: 12px;
-      }
-
-      td {
-        grid-template-columns: 78px minmax(0, 1fr);
-
-        gap: 8px;
-
-        font-size: 13px;
-      }
-
-      td::before {
-        font-size: 9px;
-      }
-
-      .action-button {
-        flex: 1 1 80px;
-
-        min-height: 38px;
-        padding: 8px 10px;
-
-        font-size: 12px;
-      }
-    }
-
-    /* =========================
-       Very small screens
-       ========================= */
-
-    @media (max-width: 320px) {
-      .table-container {
-        padding: 10px;
-      }
-
-      .table-header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .employee-count {
-        align-self: flex-start;
-      }
-
-      tbody tr {
-        padding: 11px;
-      }
-
-      td {
-        grid-template-columns: 1fr;
-        gap: 3px;
-      }
-
-      td::before {
-        display: block;
-      }
-
-      .actions {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .action-button {
-        width: 100%;
-      }
-    }
-
-    /* =========================
-       Reduced motion
+       Reduced Motion
        ========================= */
 
     @media (prefers-reduced-motion: reduce) {
-      tbody tr,
-      .action-button {
+      tbody tr {
         transition: none;
       }
     }

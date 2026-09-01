@@ -1,4 +1,4 @@
-import { LitElement, css, html } from "lit";
+import { LitElement, css, html, unsafeCSS } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 
 import "./components/button.ts";
@@ -14,6 +14,8 @@ import {
 } from "./utils/employee-validation.ts";
 
 import type { Employee } from "./components/employee-table.ts";
+import { generateThemeCSSVariables } from "./theme/colors.js";
+import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "./theme/layout.js";
 
 @customElement("employee-form")
 export class EmployeeForm extends LitElement {
@@ -45,15 +47,10 @@ export class EmployeeForm extends LitElement {
       max-width: 100%;
       min-width: 0;
       box-sizing: border-box;
-
-      font-family:
-        Inter,
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        sans-serif;
-
-      color: #1f2937;
+      ${unsafeCSS(generateThemeCSSVariables())}
+      ${unsafeCSS(generateLayoutCSSVariables())}
+      font-family: ${unsafeCSS(LAYOUT_CONFIG.fontFamily)};
+      color: var(--color-text-primary);
     }
 
     *,
@@ -65,62 +62,48 @@ export class EmployeeForm extends LitElement {
     .form-container {
       width: 100%;
       max-width: 1200px;
-
       margin: 0 auto;
-      padding: 24px;
-
-      background: #ffffff;
-
-      border: 1px solid #e5e7eb;
-      border-radius: 12px;
-
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      padding: var(--spacing-2xl);
+      background: var(--color-background);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
     }
 
     h2 {
-      margin: 0 0 24px;
-
-      color: #111827;
-
-      font-size: 24px;
-      line-height: 1.25;
+      margin: 0 0 var(--spacing-2xl);
+      color: var(--color-text-primary);
+      font-size: var(--font-size-3xl);
+      line-height: var(--line-height-tight);
       font-weight: 700;
     }
 
     .edit-badge {
       display: inline-flex;
       align-items: center;
-
-      margin-left: 8px;
-      padding: 4px 8px;
-
-      color: #1d4ed8;
-      background: #eff6ff;
-
-      border-radius: 999px;
-
-      font-size: 11px;
+      margin-left: var(--spacing-md);
+      padding: var(--spacing-sm) var(--spacing-md);
+      color: var(--color-primary);
+      background: var(--color-primary-light);
+      border-radius: var(--radius-full);
+      font-size: var(--font-size-xs);
       line-height: 1;
       font-weight: 700;
-
       vertical-align: middle;
     }
 
     .employee-form {
       display: flex;
       flex-direction: column;
-
+      gap: var(--spacing-2xl);
       width: 100%;
       min-width: 0;
     }
 
     .form-input-section {
       display: grid;
-
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-
-      gap: 16px;
-
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+      gap: var(--spacing-lg);
       width: 100%;
       min-width: 0;
     }
@@ -128,132 +111,28 @@ export class EmployeeForm extends LitElement {
     .form-group {
       display: flex;
       flex-direction: column;
-
       width: 100%;
       min-width: 0;
-    }
-
-    label {
-      margin-bottom: 7px;
-
-      color: #374151;
-
-      font-size: 14px;
-      line-height: 1.4;
-      font-weight: 600;
-    }
-
-    .required {
-      margin-left: 3px;
-
-      color: #dc2626;
-    }
-
-    input {
-      display: block;
-
-      width: 100%;
-      min-width: 0;
-      height: 44px;
-
-      padding: 11px 12px;
-
-      color: #111827;
-      background: #ffffff;
-
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
-
-      outline: none;
-
-      font-family: inherit;
-      font-size: 15px;
-
-      pointer-events: auto;
-
-      transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease;
-    }
-
-    input:focus {
-      border-color: #2563eb;
-
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
-    }
-
-    input.invalid {
-      border-color: #dc2626;
-    }
-
-    .error-message {
-      min-height: 18px;
-
-      margin-top: 5px;
-
-      color: #dc2626;
-
-      font-size: 13px;
-      line-height: 1.4;
     }
 
     .actions {
       display: flex;
       align-items: center;
-
       flex-wrap: wrap;
-
-      gap: 12px;
-
-      margin-top: 14px;
+      gap: var(--spacing-md);
+      margin-top: var(--spacing-lg);
     }
 
-    @media (max-width: 900px) {
-      .form-container {
-        padding: 22px;
-      }
+    app-button {
+      flex: 1 1 auto;
+      min-width: 120px;
+    }
 
+    @supports not (
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr))
+    ) {
       .form-input-section {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-    }
-
-    @media (max-width: 600px) {
-      .form-container {
-        padding: 18px;
-      }
-
-      h2 {
-        font-size: 21px;
-      }
-
-      .form-input-section {
-        grid-template-columns: 1fr;
-        gap: 10px;
-      }
-
-      input {
-        height: 46px;
-        font-size: 16px;
-      }
-
-      .actions {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      app-button {
-        width: 100%;
-      }
-    }
-
-    @media (max-width: 380px) {
-      .form-container {
-        padding: 14px;
-      }
-
-      h2 {
-        font-size: 19px;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
       }
     }
   `;

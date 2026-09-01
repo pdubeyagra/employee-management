@@ -1,4 +1,4 @@
-import { LitElement, css, html } from "lit";
+import { LitElement, css, html, unsafeCSS } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 
 import "./components/employee-table.ts";
@@ -6,6 +6,8 @@ import "./components/confirm-dialog.ts";
 import "./components/pagination-control.ts";
 
 import type { Employee } from "./components/employee-table.ts";
+import { generateThemeCSSVariables } from "./theme/colors.js";
+import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "./theme/layout.js";
 
 @customElement("employee-details")
 export class EmployeeDetails extends LitElement {
@@ -26,17 +28,11 @@ export class EmployeeDetails extends LitElement {
       width: 100%;
       max-width: 100%;
       min-width: 0;
-
       box-sizing: border-box;
-
-      color: #1f2937;
-
-      font-family:
-        Inter,
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        sans-serif;
+      ${unsafeCSS(generateThemeCSSVariables())}
+      ${unsafeCSS(generateLayoutCSSVariables())}
+      color: var(--color-text-primary);
+      font-family: ${unsafeCSS(LAYOUT_CONFIG.fontFamily)};
     }
 
     *,
@@ -48,6 +44,9 @@ export class EmployeeDetails extends LitElement {
     .details-container {
       width: 100%;
       min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-xl);
     }
 
     .pagination-wrapper {

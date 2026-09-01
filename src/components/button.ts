@@ -1,5 +1,7 @@
-import { LitElement, css, html } from "lit";
+import { LitElement, css, html, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators.js";
+import { generateThemeCSSVariables } from "../theme/colors.js";
+import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "../theme/layout.js";
 
 type ButtonVariant = "primary" | "secondary" | "danger" | "success" | "ghost";
 
@@ -41,23 +43,21 @@ export class AppButton extends LitElement {
       display: inline-block;
       width: auto;
       max-width: 100%;
-
-      --button-primary: #2563eb;
-      --button-primary-hover: #1d4ed8;
-
-      --button-secondary: #f3f4f6;
-      --button-secondary-hover: #e5e7eb;
-
-      --button-danger: #dc2626;
-      --button-danger-hover: #b91c1c;
-
-      --button-success: #16a34a;
-      --button-success-hover: #15803d;
-
-      --button-text: #ffffff;
-
-      --button-radius: 8px;
-      --button-font-size: 14px;
+      ${unsafeCSS(generateThemeCSSVariables())}
+      ${unsafeCSS(generateLayoutCSSVariables())}
+      --button-primary: var(--color-primary);
+      --button-primary-hover: var(--color-primary-hover);
+      --button-secondary: var(--color-secondary);
+      --button-secondary-hover: var(--color-secondary-hover);
+      --button-danger: var(--color-danger);
+      --button-danger-hover: var(--color-danger-hover);
+      --button-success: var(--color-success);
+      --button-success-hover: var(--color-success-hover);
+      --button-text: var(--color-text-inverse);
+      --button-text-secondary: var(--color-text-secondary);
+      --button-radius: var(--radius-md);
+      --button-font-size: var(--font-size-base);
+      font-family: ${unsafeCSS(LAYOUT_CONFIG.fontFamily)};
     }
 
     *,
@@ -187,7 +187,7 @@ export class AppButton extends LitElement {
 
     button.secondary {
       background: var(--button-secondary);
-      color: #374151;
+      color: var(--button-text-secondary);
     }
 
     button.secondary:hover:not(:disabled) {
@@ -214,11 +214,11 @@ export class AppButton extends LitElement {
 
     button.ghost {
       background: transparent;
-      color: #374151;
+      color: var(--button-text-secondary);
     }
 
     button.ghost:hover:not(:disabled) {
-      background: #f3f4f6;
+      background: var(--color-background-secondary);
     }
 
     /*
@@ -306,112 +306,6 @@ export class AppButton extends LitElement {
       width: 20px;
       height: 20px;
     }
-
-    /*
-     * =========================
-     * Mobile
-     * =========================
-     *
-     * Normal buttons become full width.
-     *
-     * Icon-only buttons remain square.
-     */
-    @media (max-width: 600px) {
-      :host {
-        display: block;
-        width: 100%;
-      }
-
-      button {
-        width: 100%;
-        min-height: 44px;
-      }
-
-      button.small {
-        min-height: 40px;
-      }
-
-      button.medium {
-        min-height: 44px;
-      }
-
-      button.large {
-        min-height: 48px;
-      }
-
-      /*
-       * Keep icon-only buttons square.
-       */
-      button.icon-only.small {
-        width: 40px;
-        min-width: 40px;
-        height: 40px;
-        min-height: 40px;
-      }
-
-      button.icon-only.medium {
-        width: 44px;
-        min-width: 44px;
-        height: 44px;
-        min-height: 44px;
-      }
-
-      button.icon-only.large {
-        width: 48px;
-        min-width: 48px;
-        height: 48px;
-        min-height: 48px;
-      }
-
-      /*
-       * Explicit full-width mode.
-       */
-      :host([full-width]) {
-        width: 100%;
-      }
-
-      :host([full-width]) button {
-        width: 100%;
-      }
-
-      /*
-       * Icon-only must still remain square even
-       * if full-width was accidentally provided.
-       */
-      :host([full-width]) button.icon-only.small {
-        width: 40px;
-      }
-
-      :host([full-width]) button.icon-only.medium {
-        width: 44px;
-      }
-
-      :host([full-width]) button.icon-only.large {
-        width: 48px;
-      }
-    }
-
-    /*
-     * =========================
-     * Small phones
-     * =========================
-     */
-
-    @media (max-width: 380px) {
-      button.medium {
-        padding: 9px 14px;
-      }
-
-      button.large {
-        padding: 11px 18px;
-      }
-    }
-
-    /*
-     * =========================
-     * Reduced motion
-     * =========================
-     */
 
     @media (prefers-reduced-motion: reduce) {
       button {

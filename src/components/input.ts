@@ -1,5 +1,7 @@
-import { LitElement, css, html } from "lit";
+import { LitElement, css, html, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators.js";
+import { generateThemeCSSVariables } from "../theme/colors.js";
+import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "../theme/layout.js";
 
 @customElement("app-input")
 export class AppInput extends LitElement {
@@ -35,13 +37,9 @@ export class AppInput extends LitElement {
       display: block;
       width: 100%;
       min-width: 0;
-
-      font-family:
-        Inter,
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        sans-serif;
+      ${unsafeCSS(generateThemeCSSVariables())}
+      ${unsafeCSS(generateLayoutCSSVariables())}
+      font-family: ${unsafeCSS(LAYOUT_CONFIG.fontFamily)};
     }
 
     *,
@@ -53,79 +51,56 @@ export class AppInput extends LitElement {
     .form-group {
       display: flex;
       flex-direction: column;
-
+      gap: var(--spacing-md);
       width: 100%;
       min-width: 0;
     }
 
     label {
-      margin-bottom: 7px;
-
-      color: #374151;
-
-      font-size: 14px;
-      line-height: 1.4;
+      color: var(--color-text-secondary);
+      font-size: var(--font-size-sm);
+      line-height: var(--line-height-normal);
       font-weight: 600;
     }
 
     .required {
-      margin-left: 3px;
-      color: #dc2626;
+      margin-left: var(--spacing-xs);
+      color: var(--color-danger);
     }
 
     input {
       display: block;
-
       width: 100%;
       min-width: 0;
       height: 44px;
-
-      padding: 11px 12px;
-
-      color: #111827;
-      background: #ffffff;
-
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
-
+      padding: var(--spacing-md) var(--spacing-md);
+      color: var(--color-text-primary);
+      background: var(--color-background);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
       outline: none;
-
       font-family: inherit;
-      font-size: 15px;
-
+      font-size: var(--font-size-md);
       pointer-events: auto;
-
       transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease;
+        border-color var(--transition-base),
+        box-shadow var(--transition-base);
     }
 
     input:focus {
-      border-color: #2563eb;
-
+      border-color: var(--color-primary);
       box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
     }
 
     input.invalid {
-      border-color: #dc2626;
+      border-color: var(--color-danger);
     }
 
     .error-message {
       min-height: 18px;
-
-      margin-top: 5px;
-
-      color: #dc2626;
-
-      font-size: 13px;
-      line-height: 1.4;
-    }
-
-    @media (max-width: 600px) {
-      input {
-        height: 46px;
-        font-size: 16px;
-      }
+      color: var(--color-danger);
+      font-size: var(--font-size-xs);
+      line-height: var(--line-height-normal);
     }
   `;
 
