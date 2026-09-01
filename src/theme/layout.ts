@@ -1,10 +1,4 @@
-/**
- * Responsive layout utilities using grid and flexbox
- * No media queries - fully responsive with flexible grid/flex layouts
- */
-
 export const LAYOUT_CONFIG = {
-  // Responsive grid breakpoints (in px)
   breakpoints: {
     xs: 320,
     sm: 640,
@@ -14,7 +8,6 @@ export const LAYOUT_CONFIG = {
     "2xl": 1536,
   },
 
-  // Spacing scale
   spacing: {
     xs: "4px",
     sm: "8px",
@@ -25,7 +18,6 @@ export const LAYOUT_CONFIG = {
     "3xl": "32px",
   },
 
-  // Border radius values
   radius: {
     sm: "4px",
     md: "8px",
@@ -33,7 +25,6 @@ export const LAYOUT_CONFIG = {
     full: "999px",
   },
 
-  // Z-index scale
   zIndex: {
     hide: "-1",
     base: "0",
@@ -45,7 +36,6 @@ export const LAYOUT_CONFIG = {
     tooltip: "1060",
   },
 
-  // Font scale
   fontSize: {
     xs: "12px",
     sm: "13px",
@@ -59,7 +49,6 @@ export const LAYOUT_CONFIG = {
     "5xl": "36px",
   },
 
-  // Line height scale
   lineHeight: {
     tight: "1.2",
     normal: "1.4",
@@ -67,7 +56,6 @@ export const LAYOUT_CONFIG = {
     loose: "1.6",
   },
 
-  // Shadow scale
   shadows: {
     sm: "0 1px 2px rgba(0, 0, 0, 0.05)",
     base: "0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06)",
@@ -76,19 +64,16 @@ export const LAYOUT_CONFIG = {
     xl: "0 20px 25px rgba(0, 0, 0, 0.1), 0 10px 10px rgba(0, 0, 0, 0.04)",
   },
 
-  // Transition durations
   transitions: {
     fast: "150ms",
     base: "200ms",
     slow: "300ms",
   },
 
-  // Font family
   fontFamily:
     '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
 };
 
-// Generate CSS custom properties for responsive layouts
 export const generateLayoutCSSVariables = (): string => {
   const { spacing, radius, fontSize, lineHeight, shadows, transitions } =
     LAYOUT_CONFIG;

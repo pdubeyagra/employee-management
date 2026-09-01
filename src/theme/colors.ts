@@ -1,10 +1,4 @@
-/**
- * Enterprise-grade color theme system
- * Centralized color definitions for consistent branding and accessibility
- */
-
 export const THEME_COLORS = {
-  // Primary colors
   primary: {
     50: "#eff6ff",
     100: "#dbeafe",
@@ -18,7 +12,6 @@ export const THEME_COLORS = {
     900: "#1e3a8a",
   },
 
-  // Gray colors
   gray: {
     50: "#f9fafb",
     100: "#f3f4f6",
@@ -32,7 +25,6 @@ export const THEME_COLORS = {
     900: "#111827",
   },
 
-  // Success colors
   success: {
     50: "#f0fdf4",
     100: "#dcfce7",
@@ -46,7 +38,6 @@ export const THEME_COLORS = {
     900: "#145231",
   },
 
-  // Danger/Error colors
   danger: {
     50: "#fef2f2",
     100: "#fee2e2",
@@ -60,7 +51,6 @@ export const THEME_COLORS = {
     900: "#7f1d1d",
   },
 
-  // Warning/Caution colors
   warning: {
     50: "#fffbeb",
     100: "#fef3c7",
@@ -74,14 +64,12 @@ export const THEME_COLORS = {
     900: "#78350f",
   },
 
-  // Neutral/Background colors
   background: {
     light: "#ffffff",
     lighter: "#f9fafb",
     dark: "#16171d",
   },
 
-  // Text colors
   text: {
     primary: "#111827",
     secondary: "#374151",
@@ -89,18 +77,15 @@ export const THEME_COLORS = {
     inverse: "#ffffff",
   },
 
-  // Border colors
   border: {
     light: "#e5e7eb",
     medium: "#d1d5db",
     dark: "#9ca3af",
   },
 
-  // Shadow colors
   shadow: "rgba(0, 0, 0, 0.05)",
 } as const;
 
-// CSS variables for use in components
 export const generateThemeCSSVariables = (): string => {
   return `
     --color-primary: ${THEME_COLORS.primary[600]};

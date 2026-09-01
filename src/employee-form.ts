@@ -1,4 +1,4 @@
-import { LitElement, css, html, unsafeCSS } from "lit";
+import { LitElement, css, html, unsafeCSS, type TemplateResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 
 import "./components/button.ts";
@@ -63,17 +63,24 @@ export class EmployeeForm extends LitElement {
       width: 100%;
       max-width: 1200px;
       margin: 0 auto;
-      padding: var(--spacing-2xl);
+      padding: var(--spacing-xl) var(--spacing-2xl);
       background: var(--color-background);
       border: 1px solid var(--color-border);
       border-radius: var(--radius-lg);
       box-shadow: var(--shadow-md);
     }
 
-    h2 {
-      margin: 0 0 var(--spacing-2xl);
+    .form-header {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .form-header h2 {
+      margin: 0;
       color: var(--color-text-primary);
-      font-size: var(--font-size-3xl);
+      font-size: var(--font-size-lg);
       line-height: var(--line-height-tight);
       font-weight: 700;
     }
@@ -81,7 +88,6 @@ export class EmployeeForm extends LitElement {
     .edit-badge {
       display: inline-flex;
       align-items: center;
-      margin-left: var(--spacing-md);
       padding: var(--spacing-sm) var(--spacing-md);
       color: var(--color-primary);
       background: var(--color-primary-light);
@@ -89,20 +95,19 @@ export class EmployeeForm extends LitElement {
       font-size: var(--font-size-xs);
       line-height: 1;
       font-weight: 700;
-      vertical-align: middle;
     }
 
     .employee-form {
       display: flex;
       flex-direction: column;
-      gap: var(--spacing-2xl);
+      gap: var(--spacing-lg);
       width: 100%;
       min-width: 0;
     }
 
     .form-input-section {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
       gap: var(--spacing-lg);
       width: 100%;
       min-width: 0;
@@ -115,21 +120,28 @@ export class EmployeeForm extends LitElement {
       min-width: 0;
     }
 
+    .field-icon {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      color: var(--color-text-tertiary);
+    }
+
     .actions {
       display: flex;
       align-items: center;
       flex-wrap: wrap;
       gap: var(--spacing-md);
-      margin-top: var(--spacing-lg);
+      margin-top: var(--spacing-sm);
     }
 
     app-button {
-      flex: 1 1 auto;
+      flex: 0 1 auto;
       min-width: 120px;
     }
 
     @supports not (
-      grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr))
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr))
     ) {
       .form-input-section {
         grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -187,7 +199,6 @@ export class EmployeeForm extends LitElement {
   }
 
   private handleSubmit(event: SubmitEvent) {
-    // console.log("Form submit event:", event);
     event.preventDefault();
 
     const errors = validateEmployeeForm(this.formData);
@@ -199,7 +210,6 @@ export class EmployeeForm extends LitElement {
 
       return;
     }
-    // console.log("Form submitted:", this.formData);
 
     if (this.employeeToEdit) {
       const updatedEmployee: Employee = {
@@ -248,8 +258,6 @@ export class EmployeeForm extends LitElement {
   private handleSubmitButton(event: CustomEvent) {
     event.stopPropagation();
 
-    // console.log("Submit button clicked");
-
     const form = this.renderRoot.querySelector(
       ".employee-form",
     ) as HTMLFormElement | null;
@@ -295,15 +303,86 @@ export class EmployeeForm extends LitElement {
     toast?.show?.(message, variant);
   }
 
-  render() {
+  private get headerTemplate(): TemplateResult | typeof html {
+    const isEditing = this.employeeToEdit !== null;
+
+    return html`
+      <div class="form-header">
+        <h2>${isEditing ? "Edit Employee" : "Employee Form"}</h2>
+        ${isEditing ? html`<span class="edit-badge">Editing</span>` : ""}
+      </div>
+    `;
+  }
+
+  private renderFieldIcon(field: EmployeeField): TemplateResult {
+    const icons: Record<EmployeeField, TemplateResult> = {
+      name: html`<svg
+        class="field-icon"
+        slot="icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+        <circle cx="12" cy="7" r="4" />
+      </svg>`,
+      department: html`<svg
+        class="field-icon"
+        slot="icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <rect x="4" y="3" width="16" height="18" rx="1" />
+        <path d="M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1" />
+      </svg>`,
+      designation: html`<svg
+        class="field-icon"
+        slot="icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <rect x="2" y="7" width="20" height="14" rx="2" />
+        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+      </svg>`,
+      email: html`<svg
+        class="field-icon"
+        slot="icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <rect x="2" y="4" width="20" height="16" rx="2" />
+        <path d="m22 6-10 7L2 6" />
+      </svg>`,
+    };
+
+    return icons[field];
+  }
+
+  private get template(): TemplateResult {
     const isEditing = this.employeeToEdit !== null;
 
     return html`
       <div class="form-container">
-        <h2>
-          ${isEditing ? "Edit Employee" : "Employee Form"}
-          ${isEditing ? html` <span class="edit-badge"> Editing </span> ` : ""}
-        </h2>
+        ${this.headerTemplate}
 
         <form class="employee-form" novalidate @submit=${this.handleSubmit}>
           <div class="form-input-section">
@@ -317,7 +396,9 @@ export class EmployeeForm extends LitElement {
               @input-change=${(event: CustomEvent) =>
                 this.handleInput("name", event)}
               @input-blur=${() => this.handleBlur("name")}
-            ></app-input>
+            >
+              ${this.renderFieldIcon("name")}
+            </app-input>
 
             <app-input
               label="Department"
@@ -329,7 +410,9 @@ export class EmployeeForm extends LitElement {
               @input-change=${(event: CustomEvent) =>
                 this.handleInput("department", event)}
               @input-blur=${() => this.handleBlur("department")}
-            ></app-input>
+            >
+              ${this.renderFieldIcon("department")}
+            </app-input>
 
             <app-input
               label="Designation"
@@ -341,7 +424,9 @@ export class EmployeeForm extends LitElement {
               @input-change=${(event: CustomEvent) =>
                 this.handleInput("designation", event)}
               @input-blur=${() => this.handleBlur("designation")}
-            ></app-input>
+            >
+              ${this.renderFieldIcon("designation")}
+            </app-input>
 
             <app-input
               label="Email"
@@ -356,7 +441,9 @@ export class EmployeeForm extends LitElement {
               @input-change=${(event: CustomEvent) =>
                 this.handleInput("email", event)}
               @input-blur=${() => this.handleBlur("email")}
-            ></app-input>
+            >
+              ${this.renderFieldIcon("email")}
+            </app-input>
           </div>
 
           <div class="actions">
@@ -384,5 +471,9 @@ export class EmployeeForm extends LitElement {
 
       <app-toast></app-toast>
     `;
+  }
+
+  render() {
+    return this.template;
   }
 }

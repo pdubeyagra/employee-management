@@ -68,6 +68,24 @@ export class AppInput extends LitElement {
       color: var(--color-danger);
     }
 
+    .input-wrapper {
+      position: relative;
+      display: block;
+      width: 100%;
+      min-width: 0;
+    }
+
+    ::slotted([slot="icon"]) {
+      position: absolute;
+      top: 50%;
+      left: var(--spacing-md);
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      color: var(--color-text-tertiary);
+      pointer-events: none;
+    }
+
     input {
       display: block;
       width: 100%;
@@ -87,6 +105,10 @@ export class AppInput extends LitElement {
         box-shadow var(--transition-base);
     }
 
+    .input-wrapper.has-icon input {
+      padding-left: calc(var(--spacing-md) * 2 + 16px);
+    }
+
     input:focus {
       border-color: var(--color-primary);
       box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
@@ -103,6 +125,14 @@ export class AppInput extends LitElement {
       line-height: var(--line-height-normal);
     }
   `;
+
+  private hasIcon = false;
+
+  private handleIconSlotChange(event: Event) {
+    const slot = event.target as HTMLSlotElement;
+    this.hasIcon = slot.assignedNodes({ flatten: true }).length > 0;
+    this.requestUpdate();
+  }
 
   private handleInput(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -137,17 +167,21 @@ export class AppInput extends LitElement {
           ${this.required ? html`<span class="required">*</span>` : ""}
         </label>
 
-        <input
-          type=${this.type}
-          .value=${this.value}
-          placeholder=${this.placeholder}
-          inputmode=${this.inputmode || undefined}
-          autocomplete=${this.autocomplete || undefined}
-          class=${this.invalid ? "invalid" : ""}
-          aria-invalid=${this.invalid ? "true" : "false"}
-          @input=${this.handleInput}
-          @blur=${this.handleBlur}
-        />
+        <div class="input-wrapper ${this.hasIcon ? "has-icon" : ""}">
+          <slot name="icon" @slotchange=${this.handleIconSlotChange}></slot>
+
+          <input
+            type=${this.type}
+            .value=${this.value}
+            placeholder=${this.placeholder}
+            inputmode=${this.inputmode || undefined}
+            autocomplete=${this.autocomplete || undefined}
+            class=${this.invalid ? "invalid" : ""}
+            aria-invalid=${this.invalid ? "true" : "false"}
+            @input=${this.handleInput}
+            @blur=${this.handleBlur}
+          />
+        </div>
 
         <div class="error-message" role="alert">${this.error}</div>
       </div>
