@@ -3,6 +3,7 @@ import { customElement, property, state } from "lit/decorators.js";
 
 import "./components/button.ts";
 import "./components/toast.ts";
+import "./components/input.ts";
 
 import {
   validateEmployeeField,
@@ -285,17 +286,17 @@ export class EmployeeForm extends LitElement {
     }
   }
 
-  private handleInput(event: Event, field: EmployeeField) {
-    const input = event.target as HTMLInputElement;
+  private handleInput(field: EmployeeField, event: CustomEvent) {
+    const value = event.detail.value;
 
     this.formData = {
       ...this.formData,
-      [field]: input.value,
+      [field]: value,
     };
 
     this.errors = {
       ...this.errors,
-      [field]: validateEmployeeField(field, input.value),
+      [field]: validateEmployeeField(field, value),
     };
   }
 
@@ -427,101 +428,56 @@ export class EmployeeForm extends LitElement {
 
         <form class="employee-form" novalidate @submit=${this.handleSubmit}>
           <div class="form-input-section">
-            <!-- Name -->
+            <app-input
+              label="Name"
+              placeholder="Enter employee name"
+              .value=${this.formData.name}
+              .error=${this.errors.name}
+              .invalid=${Boolean(this.errors.name)}
+              required
+              @input-change=${(event: CustomEvent) =>
+                this.handleInput("name", event)}
+              @input-blur=${() => this.handleBlur("name")}
+            ></app-input>
 
-            <div class="form-group">
-              <label for="employee-name">
-                Name
-                <span class="required">*</span>
-              </label>
+            <app-input
+              label="Department"
+              placeholder="e.g. Engineering"
+              .value=${this.formData.department}
+              .error=${this.errors.department}
+              .invalid=${Boolean(this.errors.department)}
+              required
+              @input-change=${(event: CustomEvent) =>
+                this.handleInput("department", event)}
+              @input-blur=${() => this.handleBlur("department")}
+            ></app-input>
 
-              <input
-                id="employee-name"
-                type="text"
-                placeholder="Enter employee name"
-                .value=${this.formData.name}
-                class=${this.errors.name ? "invalid" : ""}
-                aria-invalid=${this.errors.name ? "true" : "false"}
-                @input=${(event: Event) => this.handleInput(event, "name")}
-                @blur=${() => this.handleBlur("name")}
-              />
+            <app-input
+              label="Designation"
+              placeholder="e.g. Software Engineer"
+              .value=${this.formData.designation}
+              .error=${this.errors.designation}
+              .invalid=${Boolean(this.errors.designation)}
+              required
+              @input-change=${(event: CustomEvent) =>
+                this.handleInput("designation", event)}
+              @input-blur=${() => this.handleBlur("designation")}
+            ></app-input>
 
-              <div class="error-message" role="alert">${this.errors.name}</div>
-            </div>
-
-            <!-- Department -->
-
-            <div class="form-group">
-              <label for="employee-department">
-                Department
-                <span class="required">*</span>
-              </label>
-
-              <input
-                id="employee-department"
-                type="text"
-                placeholder="e.g. Engineering"
-                .value=${this.formData.department}
-                class=${this.errors.department ? "invalid" : ""}
-                aria-invalid=${this.errors.department ? "true" : "false"}
-                @input=${(event: Event) =>
-                  this.handleInput(event, "department")}
-                @blur=${() => this.handleBlur("department")}
-              />
-
-              <div class="error-message" role="alert">
-                ${this.errors.department}
-              </div>
-            </div>
-
-            <!-- Designation -->
-
-            <div class="form-group">
-              <label for="employee-designation">
-                Designation
-                <span class="required">*</span>
-              </label>
-
-              <input
-                id="employee-designation"
-                type="text"
-                placeholder="e.g. Software Engineer"
-                .value=${this.formData.designation}
-                class=${this.errors.designation ? "invalid" : ""}
-                aria-invalid=${this.errors.designation ? "true" : "false"}
-                @input=${(event: Event) =>
-                  this.handleInput(event, "designation")}
-                @blur=${() => this.handleBlur("designation")}
-              />
-
-              <div class="error-message" role="alert">
-                ${this.errors.designation}
-              </div>
-            </div>
-
-            <!-- Email -->
-
-            <div class="form-group">
-              <label for="employee-email">
-                Email
-                <span class="required">*</span>
-              </label>
-
-              <input
-                id="employee-email"
-                type="email"
-                inputmode="email"
-                autocomplete="email"
-                placeholder="employee@example.com"
-                .value=${this.formData.email}
-                class=${this.errors.email ? "invalid" : ""}
-                aria-invalid=${this.errors.email ? "true" : "false"}
-                @input=${(event: Event) => this.handleInput(event, "email")}
-                @blur=${() => this.handleBlur("email")}
-              />
-
-              <div class="error-message" role="alert">${this.errors.email}</div>
-            </div>
+            <app-input
+              label="Email"
+              type="email"
+              inputmode="email"
+              autocomplete="email"
+              placeholder="employee@example.com"
+              .value=${this.formData.email}
+              .error=${this.errors.email}
+              .invalid=${Boolean(this.errors.email)}
+              required
+              @input-change=${(event: CustomEvent) =>
+                this.handleInput("email", event)}
+              @input-blur=${() => this.handleBlur("email")}
+            ></app-input>
           </div>
 
           <div class="actions">
