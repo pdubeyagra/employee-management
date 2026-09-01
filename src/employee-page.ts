@@ -11,11 +11,16 @@ export class EmployeePage extends LitElement {
   @state()
   private employees: Employee[] = [];
 
+  @state()
+  private employeeBeingEdited: Employee | null = null;
+
   static styles = css`
     :host {
       display: block;
+
       width: 100%;
       min-height: 100vh;
+
       box-sizing: border-box;
 
       background: #f8fafc;
@@ -38,18 +43,16 @@ export class EmployeePage extends LitElement {
     .page {
       width: 100%;
       min-height: 100vh;
+
       padding: 32px;
     }
 
     .page-container {
       width: 100%;
       max-width: 1400px;
+
       margin: 0 auto;
     }
-
-    /* =========================
-       Page Header
-       ========================= */
 
     .page-header {
       display: flex;
@@ -57,6 +60,7 @@ export class EmployeePage extends LitElement {
       justify-content: space-between;
 
       gap: 20px;
+
       margin-bottom: 24px;
     }
 
@@ -83,27 +87,23 @@ export class EmployeePage extends LitElement {
       line-height: 1.5;
     }
 
-    /* =========================
-       Content
-       ========================= */
-
     .page-content {
       display: flex;
       flex-direction: column;
 
       width: 100%;
+      min-width: 0;
+
       gap: 24px;
     }
 
     employee-form,
     employee-details {
       display: block;
-      width: 100%;
-    }
 
-    /* =========================
-       Tablet
-       ========================= */
+      width: 100%;
+      min-width: 0;
+    }
 
     @media (max-width: 900px) {
       .page {
@@ -123,10 +123,6 @@ export class EmployeePage extends LitElement {
       }
     }
 
-    /* =========================
-       Mobile
-       ========================= */
-
     @media (max-width: 600px) {
       .page {
         padding: 16px;
@@ -137,6 +133,7 @@ export class EmployeePage extends LitElement {
         align-items: flex-start;
 
         gap: 8px;
+
         margin-bottom: 16px;
       }
 
@@ -150,13 +147,10 @@ export class EmployeePage extends LitElement {
 
       .page-description {
         margin-top: 5px;
+
         font-size: 14px;
       }
     }
-
-    /* =========================
-       Small phones
-       ========================= */
 
     @media (max-width: 380px) {
       .page {
@@ -177,8 +171,54 @@ export class EmployeePage extends LitElement {
     }
   `;
 
-  private handleEmployeeAdded(event: CustomEvent<Employee>) {
-    this.employees = [...this.employees, event.detail];
+  private handleEmployeeAdded(event: CustomEvent<Omit<Employee, "id">>) {
+    event.stopPropagation();
+    // console.log("Employee added:", event.detail);
+    const employee: Employee = {
+      id: crypto.randomUUID(),
+      ...event.detail,
+    };
+
+    this.employees = [...this.employees, employee];
+  }
+
+  private handleEmployeeEdit(event: CustomEvent<Employee>) {
+    event.stopPropagation();
+
+    this.employeeBeingEdited = event.detail;
+
+    console.log("Edit employee:", event.detail);
+  }
+
+  private handleEmployeeUpdated(event: CustomEvent<Employee>) {
+    event.stopPropagation();
+
+    const updatedEmployee = event.detail;
+
+    this.employees = this.employees.map((employee) =>
+      employee.id === updatedEmployee.id ? updatedEmployee : employee,
+    );
+
+    this.employeeBeingEdited = null;
+
+    console.log("Employee updated:", updatedEmployee);
+  }
+
+  private handleEditCancelled() {
+    this.employeeBeingEdited = null;
+  }
+
+  private handleEmployeeDelete(event: CustomEvent<Employee>) {
+    event.stopPropagation();
+
+    const employeeToDelete = event.detail;
+
+    this.employees = this.employees.filter(
+      (employee) => employee.id !== employeeToDelete.id,
+    );
+    if (this.employeeBeingEdited?.id === employeeToDelete.id) {
+      this.employeeBeingEdited = null;
+    }
   }
 
   render() {
@@ -187,7 +227,7 @@ export class EmployeePage extends LitElement {
         <div class="page-container">
           <header class="page-header">
             <div class="page-title">
-              <h1>Employees</h1>
+              <h1>Employees Table</h1>
 
               <p class="page-description">Add and manage your employees.</p>
             </div>
@@ -195,10 +235,17 @@ export class EmployeePage extends LitElement {
 
           <section class="page-content">
             <employee-form
+              .employeeToEdit=${this.employeeBeingEdited}
               @employee-added=${this.handleEmployeeAdded}
+              @employee-updated=${this.handleEmployeeUpdated}
+              @edit-cancelled=${this.handleEditCancelled}
             ></employee-form>
 
-            <employee-details .employees=${this.employees}></employee-details>
+            <employee-details
+              .employees=${this.employees}
+              @employee-delete=${this.handleEmployeeDelete}
+              @employee-edit=${this.handleEmployeeEdit}
+            ></employee-details>
           </section>
         </div>
       </main>

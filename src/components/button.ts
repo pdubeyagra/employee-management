@@ -448,6 +448,14 @@ export class AppButton extends LitElement {
         composed: true,
       }),
     );
+    if (this.type === "submit") {
+      this.dispatchEvent(
+        new CustomEvent("button-submit", {
+          bubbles: true,
+          composed: true,
+        }),
+      );
+    }
   }
 
   render() {

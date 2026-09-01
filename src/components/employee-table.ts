@@ -2,6 +2,7 @@ import { LitElement, css, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
 export interface Employee {
+  id: string;
   name: string;
   department: string;
   designation: string;
