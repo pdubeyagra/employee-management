@@ -22,23 +22,12 @@ export class AppToast extends LitElement {
   @property({ type: Boolean })
   open = false;
 
-  /**
-   * Duration in milliseconds.
-   *
-   * 0 = stays open until manually closed.
-   */
   @property({ type: Number })
   duration = 3000;
 
-  /**
-   * Whether to display the close button.
-   */
   @property({ type: Boolean })
   closable = true;
 
-  /**
-   * Toast position on the screen.
-   */
   @property({ type: String })
   placement: ToastPlacement = "top-right";
 
@@ -100,13 +89,11 @@ export class AppToast extends LitElement {
       min-width: 280px;
       max-width: min(420px, calc(100vw - 48px));
 
-      box-sizing: border-box;
-
       padding: 14px 16px;
 
-      border-radius: 10px;
-
       color: #ffffff;
+
+      border-radius: 10px;
 
       font-size: 14px;
       font-weight: 500;
@@ -132,8 +119,6 @@ export class AppToast extends LitElement {
       pointer-events: auto;
     }
 
-    /* Bottom toast animation */
-
     :host([placement^="bottom"]) .toast {
       transform: translateY(10px);
     }
@@ -143,11 +128,44 @@ export class AppToast extends LitElement {
     }
 
     /* -------------------------
+       Icon
+    ------------------------- */
+
+    .icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+
+      flex: 0 0 auto;
+
+      width: 22px;
+      height: 22px;
+    }
+
+    .icon svg {
+      display: block;
+
+      width: 22px;
+      height: 22px;
+
+      fill: none;
+      stroke: currentColor;
+
+      stroke-width: 2;
+
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* -------------------------
        Message
     ------------------------- */
 
     .message {
       flex: 1;
+      min-width: 0;
+
+      overflow-wrap: anywhere;
     }
 
     /* -------------------------
@@ -158,6 +176,8 @@ export class AppToast extends LitElement {
       display: flex;
       align-items: center;
       justify-content: center;
+
+      flex: 0 0 auto;
 
       width: 24px;
       height: 24px;
@@ -248,6 +268,12 @@ export class AppToast extends LitElement {
         max-width: none;
       }
     }
+
+    @media (prefers-reduced-motion: reduce) {
+      .toast {
+        transition: none;
+      }
+    }
   `;
 
   connectedCallback() {
@@ -270,9 +296,6 @@ export class AppToast extends LitElement {
     }
   }
 
-  /**
-   * Show the toast.
-   */
   show(message: string, variant: ToastVariant = "success") {
     this.message = message;
     this.variant = variant;
@@ -281,9 +304,6 @@ export class AppToast extends LitElement {
     this.startTimer();
   }
 
-  /**
-   * Manually close the toast.
-   */
   close() {
     this.open = false;
     this.clearTimer();
@@ -299,7 +319,6 @@ export class AppToast extends LitElement {
   private startTimer() {
     this.clearTimer();
 
-    // duration = 0 means no automatic closing.
     if (!this.open || this.duration <= 0) {
       return;
     }
@@ -320,6 +339,36 @@ export class AppToast extends LitElement {
     this.close();
   }
 
+  private renderIcon() {
+    switch (this.variant) {
+      case "success":
+        return html`
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"></circle>
+            <path d="m8 12 2.5 2.5L16 9"></path>
+          </svg>
+        `;
+
+      case "error":
+        return html`
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"></circle>
+            <path d="M12 8v4"></path>
+            <path d="M12 16h.01"></path>
+          </svg>
+        `;
+
+      case "info":
+        return html`
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"></circle>
+            <path d="M12 10v6"></path>
+            <path d="M12 7h.01"></path>
+          </svg>
+        `;
+    }
+  }
+
   disconnectedCallback() {
     this.clearTimer();
     super.disconnectedCallback();
@@ -333,7 +382,9 @@ export class AppToast extends LitElement {
         aria-live="polite"
         aria-hidden=${this.open ? "false" : "true"}
       >
-        <span class="message"> ${this.message} </span>
+        <span class="icon" aria-hidden="true"> ${this.renderIcon()} </span>
+
+        <span class="message">${this.message}</span>
 
         ${this.closable
           ? html`

@@ -741,23 +741,58 @@ export class EmployeeTable extends LitElement {
 
                           <td>
                             <div class="actions">
-                              <button
+                              <app-button
+                                variant="primary"
+                                size="small"
+                                shape="rounded"
+                                .iconOnly=${true}
                                 type="button"
-                                class="action-button edit-button"
-                                @click=${() => this.handleEdit(employee)}
-                                aria-label="Edit ${employee.name}"
+                                aria-label="Edit employee"
+                                @button-click=${() => this.handleEdit(employee)}
                               >
-                                Edit
-                              </button>
-
-                              <button
+                                <svg
+                                  slot="icon-only"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  stroke-width="2"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  aria-hidden="true"
+                                >
+                                  <path d="M12 20h9" />
+                                  <path
+                                    d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"
+                                  />
+                                </svg>
+                              </app-button>
+                              <app-button
+                                variant="danger"
+                                size="small"
+                                shape="rounded"
+                                .iconOnly=${true}
                                 type="button"
-                                class="action-button delete-button"
-                                @click=${() => this.handleDelete(employee)}
-                                aria-label="Delete ${employee.name}"
+                                aria-label="Delete employee"
+                                @button-click=${() =>
+                                  this.handleDelete(employee)}
                               >
-                                Delete
-                              </button>
+                                <svg
+                                  slot="icon-only"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  stroke-width="2"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  aria-hidden="true"
+                                >
+                                  <path d="M3 6h18" />
+                                  <path d="M8 6V4h8v2" />
+                                  <path d="M19 6l-1 14H6L5 6" />
+                                  <path d="M10 11v5" />
+                                  <path d="M14 11v5" />
+                                </svg>
+                              </app-button>
                             </div>
                           </td>
                         </tr>
