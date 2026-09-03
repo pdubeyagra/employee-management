@@ -6,12 +6,23 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "mocha",
+    "test:watch": "mocha --watch",
+    "test:types": "tsc --noEmit -p test/tsconfig.json"
   },
   "dependencies": {
     "lit": "^3.3.3"
   },
   "devDependencies": {
+    "@types/chai": "^5.2.3",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^26.4.1",
+    "chai": "^6.2.2",
+    "global-jsdom": "^29.0.0",
+    "jsdom": "^29.1.1",
+    "mocha": "^12.0.0",
+    "tsx": "^4.23.13",
     "typescript": "~6.0.2",
     "vite": "^8.2.2"
   }

@@ -1,0 +1,7 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "types": ["vite/client", "mocha", "node"]
+  },
+  "include": ["**/*.ts", "../src/**/*.ts"]
+}

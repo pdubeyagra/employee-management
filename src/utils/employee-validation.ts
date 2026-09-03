@@ -9,6 +9,22 @@ export interface EmployeeFormData {
 
 export type EmployeeErrors = Record<EmployeeField, string>;
 
+export const FIELD_MAX_LENGTHS: Record<EmployeeField, number> = {
+  name: 100,
+  department: 100,
+  designation: 100,
+  email: 254,
+};
+
+const FIELD_LABELS: Record<EmployeeField, string> = {
+  name: "Name",
+  department: "Department",
+  designation: "Designation",
+  email: "Email",
+};
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@.]+(?:\.[^\s@.]+)+$/;
+
 export function validateEmployeeField(
   field: EmployeeField,
   value: string,
@@ -16,27 +32,17 @@ export function validateEmployeeField(
   const trimmedValue = value.trim();
 
   if (!trimmedValue) {
-    switch (field) {
-      case "name":
-        return "Name is required.";
-
-      case "department":
-        return "Department is required.";
-
-      case "designation":
-        return "Designation is required.";
-
-      case "email":
-        return "Email is required.";
-    }
+    return `${FIELD_LABELS[field]} is required.`;
   }
 
-  if (field === "email") {
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const maxLength = FIELD_MAX_LENGTHS[field];
 
-    if (!emailPattern.test(trimmedValue)) {
-      return "Please enter a valid email address.";
-    }
+  if (trimmedValue.length > maxLength) {
+    return `${FIELD_LABELS[field]} must be ${maxLength} characters or fewer.`;
+  }
+
+  if (field === "email" && !EMAIL_PATTERN.test(trimmedValue)) {
+    return "Please enter a valid email address.";
   }
 
   return "";
