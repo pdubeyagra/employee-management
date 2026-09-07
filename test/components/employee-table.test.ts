@@ -1,10 +1,10 @@
 import { expect } from "chai";
 
-import "../../src/components/employee-table.ts";
+import "../../src/components/employee/employee-table.ts";
 import type {
   Employee,
   EmployeeTable,
-} from "../../src/components/employee-table.ts";
+} from "../../src/components/employee/employee-table.ts";
 import type { AppButton } from "../../src/components/button.ts";
 import { makeEmployee, makeEmployees } from "../helpers/employees.ts";
 import {

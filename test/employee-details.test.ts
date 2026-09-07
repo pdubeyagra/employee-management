@@ -5,9 +5,9 @@ import type { EmployeeDetails } from "../src/employee-details.ts";
 import type {
   Employee,
   EmployeeTable,
-} from "../src/components/employee-table.ts";
+} from "../src/components/employee/employee-table.ts";
 import type { PaginationControl } from "../src/components/pagination-control.ts";
-import type { ConfirmDialog } from "../src/components/confirm-dialog.ts";
+import type { ConfirmDialog } from "../src/components/shared/confirm-dialog.ts";
 import type { AppButton } from "../src/components/button.ts";
 import { makeEmployee, makeEmployees } from "./helpers/employees.ts";
 import {

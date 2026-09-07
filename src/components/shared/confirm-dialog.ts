@@ -3,8 +3,11 @@ import { customElement, property } from "lit/decorators.js";
 
 import "./button.ts";
 
-import { generateThemeCSSVariables } from "../theme/colors.js";
-import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "../theme/layout.js";
+import { generateThemeCSSVariables } from "../../theme/colors.js";
+import {
+  LAYOUT_CONFIG,
+  generateLayoutCSSVariables,
+} from "../../theme/layout.js";
 
 @customElement("confirm-dialog")
 export class ConfirmDialog extends LitElement {

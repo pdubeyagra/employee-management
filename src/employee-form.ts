@@ -2,7 +2,7 @@ import { LitElement, css, html, unsafeCSS, type TemplateResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 
 import "./components/button.ts";
-import "./components/toast.ts";
+import "./components/shared/toast.ts";
 import "./components/input.ts";
 
 import {
@@ -14,7 +14,7 @@ import {
   type EmployeeField,
 } from "./utils/employee-validation.ts";
 
-import type { Employee } from "./components/employee-table.ts";
+import type { Employee } from "./components/employee/employee-table.ts";
 import { generateThemeCSSVariables } from "./theme/colors.js";
 import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "./theme/layout.js";
 

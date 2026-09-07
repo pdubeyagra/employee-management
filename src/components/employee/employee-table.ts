@@ -1,12 +1,15 @@
 import { LitElement, css, html, unsafeCSS, type TemplateResult } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { generateThemeCSSVariables } from "../theme/colors.js";
-import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "../theme/layout.js";
+import { generateThemeCSSVariables } from "../../theme/colors.js";
+import {
+  LAYOUT_CONFIG,
+  generateLayoutCSSVariables,
+} from "../../theme/layout.js";
 import {
   generateAvatarClasses,
   getAvatarVariant,
   getInitials,
-} from "../utils/avatar.js";
+} from "../../utils/avatar.js";
 
 export interface Employee {
   id: string;
@@ -276,9 +279,7 @@ export class EmployeeTable extends LitElement {
       <tr>
         <td>
           <div class="name-cell">
-            <span
-              class="avatar avatar-${avatarVariant}"
-              aria-hidden="true"
+            <span class="avatar avatar-${avatarVariant}" aria-hidden="true"
               >${initials}</span
             >
             <span class="name">${employee.name || "—"}</span>

@@ -1,12 +1,12 @@
 import { LitElement, css, html, unsafeCSS, type TemplateResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 
-import "./components/employee-table.ts";
-import "./components/confirm-dialog.ts";
+import "./components/employee/employee-table.ts";
+import "./components/shared/confirm-dialog.ts";
 import "./components/pagination-control.ts";
 import "./components/button.ts";
 
-import type { Employee } from "./components/employee-table.ts";
+import type { Employee } from "./components/employee/employee-table.ts";
 import { generateThemeCSSVariables } from "./theme/colors.js";
 import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "./theme/layout.js";
 import {
@@ -433,9 +433,7 @@ export class EmployeeDetails extends LitElement {
     return html`
       <li class="employee-card">
         <div class="card-top">
-          <span class="card-avatar avatar-${avatarVariant}"
-            >${initials}</span
-          >
+          <span class="card-avatar avatar-${avatarVariant}">${initials}</span>
           <span class="card-name">${employee.name || "—"}</span>
         </div>
 

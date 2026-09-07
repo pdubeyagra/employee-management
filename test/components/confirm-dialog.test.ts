@@ -1,7 +1,7 @@
 import { expect } from "chai";
 
-import "../../src/components/confirm-dialog.ts";
-import type { ConfirmDialog } from "../../src/components/confirm-dialog.ts";
+import "../../src/components/shared/confirm-dialog.ts";
+import type { ConfirmDialog } from "../../src/components/shared/confirm-dialog.ts";
 import type { AppButton } from "../../src/components/button.ts";
 import {
   click,

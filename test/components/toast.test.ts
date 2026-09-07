@@ -1,7 +1,7 @@
 import { expect } from "chai";
 
-import "../../src/components/toast.ts";
-import type { AppToast } from "../../src/components/toast.ts";
+import "../../src/components/shared/toast.ts";
+import type { AppToast } from "../../src/components/shared/toast.ts";
 import {
   click,
   mount,
@@ -163,9 +163,7 @@ describe("<app-toast>", () => {
 
     await sleep(60);
 
-    expect(events, "no close should fire after disconnect").to.have.lengthOf(
-      0,
-    );
+    expect(events, "no close should fire after disconnect").to.have.lengthOf(0);
   });
 });
 

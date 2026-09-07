@@ -4,9 +4,9 @@ import { customElement, state } from "lit/decorators.js";
 import "./employee-form.ts";
 import "./employee-details.ts";
 import "./components/button.ts";
-import "./components/toast.ts";
+import "./components/shared/toast.ts";
 
-import type { Employee } from "./components/employee-table.ts";
+import type { Employee } from "./components/employee/employee-table.ts";
 import { generateThemeCSSVariables } from "./theme/colors.js";
 import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "./theme/layout.js";
 

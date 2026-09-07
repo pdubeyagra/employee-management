@@ -5,8 +5,8 @@ import type { EmployeePage } from "../src/employee-page.ts";
 import type { EmployeeForm } from "../src/employee-form.ts";
 import type { EmployeeDetails } from "../src/employee-details.ts";
 import type { AppButton } from "../src/components/button.ts";
-import type { AppToast } from "../src/components/toast.ts";
-import type { Employee } from "../src/components/employee-table.ts";
+import type { AppToast } from "../src/components/shared/toast.ts";
+import type { Employee } from "../src/components/employee/employee-table.ts";
 import {
   click,
   mount,
