@@ -1,7 +1,7 @@
 import { LitElement, css, html, unsafeCSS, type TemplateResult } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-import "./button.ts";
+import "../ui/button.js";
 
 import { generateThemeCSSVariables } from "../../theme/colors.js";
 import {

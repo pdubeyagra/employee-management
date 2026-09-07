@@ -1,7 +1,10 @@
 import { LitElement, css, html, nothing, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { generateThemeCSSVariables } from "../theme/colors.js";
-import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "../theme/layout.js";
+import { generateThemeCSSVariables } from "../../theme/colors.js";
+import {
+  LAYOUT_CONFIG,
+  generateLayoutCSSVariables,
+} from "../../theme/layout.js";
 
 @customElement("app-input")
 export class AppInput extends LitElement {

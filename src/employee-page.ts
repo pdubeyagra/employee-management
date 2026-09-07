@@ -3,7 +3,7 @@ import { customElement, state } from "lit/decorators.js";
 
 import "./employee-form.ts";
 import "./employee-details.ts";
-import "./components/button.ts";
+import "./components/ui/button.ts";
 import "./components/shared/toast.ts";
 
 import type { Employee } from "./components/employee/employee-table.ts";

@@ -3,8 +3,8 @@ import { customElement, property, state } from "lit/decorators.js";
 
 import "./components/employee/employee-table.ts";
 import "./components/shared/confirm-dialog.ts";
-import "./components/pagination-control.ts";
-import "./components/button.ts";
+import "./components/shared/pagination-control.ts";
+import "./components/ui/button.ts";
 
 import type { Employee } from "./components/employee/employee-table.ts";
 import { generateThemeCSSVariables } from "./theme/colors.js";

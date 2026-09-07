@@ -1,7 +1,10 @@
 import { LitElement, css, html, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { generateThemeCSSVariables } from "../theme/colors.js";
-import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "../theme/layout.js";
+import { generateThemeCSSVariables } from "../../theme/colors.js";
+import {
+  LAYOUT_CONFIG,
+  generateLayoutCSSVariables,
+} from "../../theme/layout.js";
 
 @customElement("pagination-control")
 export class PaginationControl extends LitElement {

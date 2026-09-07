@@ -1,9 +1,9 @@
 import { LitElement, css, html, unsafeCSS, type TemplateResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 
-import "./components/button.ts";
+import "./components/ui/button.ts";
 import "./components/shared/toast.ts";
-import "./components/input.ts";
+import "./components/ui/input.ts";
 
 import {
   FIELD_MAX_LENGTHS,
