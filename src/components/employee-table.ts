@@ -2,6 +2,11 @@ import { LitElement, css, html, unsafeCSS, type TemplateResult } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { generateThemeCSSVariables } from "../theme/colors.js";
 import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "../theme/layout.js";
+import {
+  generateAvatarClasses,
+  getAvatarVariant,
+  getInitials,
+} from "../utils/avatar.js";
 
 export interface Employee {
   id: string;
@@ -10,15 +15,6 @@ export interface Employee {
   designation: string;
   email: string;
 }
-
-const AVATAR_PALETTE = [
-  "#2563eb",
-  "#7c3aed",
-  "#db2777",
-  "#059669",
-  "#d97706",
-  "#0891b2",
-];
 
 @customElement("employee-table")
 export class EmployeeTable extends LitElement {
@@ -58,7 +54,7 @@ export class EmployeeTable extends LitElement {
 
     table {
       width: 100%;
-      min-width: 800px;
+      min-width: 680px;
       border-collapse: collapse;
       table-layout: fixed;
     }
@@ -146,6 +142,8 @@ export class EmployeeTable extends LitElement {
       text-transform: uppercase;
     }
 
+    ${unsafeCSS(generateAvatarClasses(".avatar"))}
+
     .name {
       color: var(--color-text-primary);
       font-weight: 600;
@@ -211,8 +209,6 @@ export class EmployeeTable extends LitElement {
     this.dispatchEvent(
       new CustomEvent<Employee>("edit", {
         detail: employee,
-        bubbles: true,
-        composed: true,
       }),
     );
   }
@@ -221,42 +217,12 @@ export class EmployeeTable extends LitElement {
     this.dispatchEvent(
       new CustomEvent<Employee>("delete", {
         detail: employee,
-        bubbles: true,
-        composed: true,
       }),
     );
   }
 
   private handleAddEmployee() {
-    this.dispatchEvent(
-      new CustomEvent("add-employee", {
-        bubbles: true,
-        composed: true,
-      }),
-    );
-  }
-
-  private getInitials(name: string): string {
-    const parts = name.trim().split(/\s+/).filter(Boolean);
-
-    if (parts.length === 0) {
-      return "?";
-    }
-
-    const first = parts[0]?.[0] ?? "";
-    const last = parts.length > 1 ? (parts[parts.length - 1]?.[0] ?? "") : "";
-
-    return `${first}${last}`.toUpperCase();
-  }
-
-  private getAvatarColor(name: string): string {
-    let hash = 0;
-
-    for (let i = 0; i < name.length; i++) {
-      hash = name.charCodeAt(i) + ((hash << 5) - hash);
-    }
-
-    return AVATAR_PALETTE[Math.abs(hash) % AVATAR_PALETTE.length]!;
+    this.dispatchEvent(new CustomEvent("add-employee"));
   }
 
   private get emptyStateTemplate(): TemplateResult {
@@ -303,16 +269,15 @@ export class EmployeeTable extends LitElement {
   }
 
   private renderRow(employee: Employee): TemplateResult {
-    const initials = this.getInitials(employee.name);
-    const avatarColor = this.getAvatarColor(employee.name || employee.id);
+    const initials = getInitials(employee.name);
+    const avatarVariant = getAvatarVariant(employee.name || employee.id);
 
     return html`
       <tr>
         <td>
           <div class="name-cell">
             <span
-              class="avatar"
-              style="background:${avatarColor}"
+              class="avatar avatar-${avatarVariant}"
               aria-hidden="true"
               >${initials}</span
             >

@@ -9,6 +9,11 @@ import "./components/button.ts";
 import type { Employee } from "./components/employee-table.ts";
 import { generateThemeCSSVariables } from "./theme/colors.js";
 import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "./theme/layout.js";
+import {
+  generateAvatarClasses,
+  getAvatarVariant,
+  getInitials,
+} from "./utils/avatar.js";
 
 @customElement("employee-details")
 export class EmployeeDetails extends LitElement {
@@ -131,7 +136,7 @@ export class EmployeeDetails extends LitElement {
       min-width: 0;
     }
 
-    @media (max-width: 640px) {
+    @media (max-width: 768px) {
       .table-view {
         display: none;
       }
@@ -180,6 +185,8 @@ export class EmployeeDetails extends LitElement {
       font-weight: 700;
       text-transform: uppercase;
     }
+
+    ${unsafeCSS(generateAvatarClasses(".card-avatar"))}
 
     .card-name {
       min-width: 0;
@@ -260,16 +267,13 @@ export class EmployeeDetails extends LitElement {
       width: 100%;
       min-width: 0;
     }
-  `;
 
-  private readonly avatarPalette = [
-    "#2563eb",
-    "#7c3aed",
-    "#db2777",
-    "#059669",
-    "#d97706",
-    "#0891b2",
-  ];
+    @media (prefers-reduced-motion: reduce) {
+      .search-input {
+        transition: none;
+      }
+    }
+  `;
 
   private get filteredEmployees(): Employee[] {
     const query = this.searchQuery.trim().toLowerCase();
@@ -317,8 +321,6 @@ export class EmployeeDetails extends LitElement {
     this.dispatchEvent(
       new CustomEvent<Employee>("employee-edit", {
         detail: employee,
-        bubbles: true,
-        composed: true,
       }),
     );
   }
@@ -342,12 +344,7 @@ export class EmployeeDetails extends LitElement {
   private handleAddEmployeeBubbled(event: Event) {
     event.stopPropagation();
 
-    this.dispatchEvent(
-      new CustomEvent("add-employee", {
-        bubbles: true,
-        composed: true,
-      }),
-    );
+    this.dispatchEvent(new CustomEvent("add-employee"));
   }
 
   private handleCancelDelete(event: Event) {
@@ -367,35 +364,10 @@ export class EmployeeDetails extends LitElement {
     this.dispatchEvent(
       new CustomEvent<Employee>("employee-delete", {
         detail: employee,
-        bubbles: true,
-        composed: true,
       }),
     );
 
     this.employeeToDelete = null;
-  }
-
-  private getInitials(name: string): string {
-    const parts = name.trim().split(/\s+/).filter(Boolean);
-
-    if (parts.length === 0) {
-      return "?";
-    }
-
-    const first = parts[0]?.[0] ?? "";
-    const last = parts.length > 1 ? (parts[parts.length - 1]?.[0] ?? "") : "";
-
-    return `${first}${last}`.toUpperCase();
-  }
-
-  private getAvatarColor(name: string): string {
-    let hash = 0;
-
-    for (let i = 0; i < name.length; i++) {
-      hash = name.charCodeAt(i) + ((hash << 5) - hash);
-    }
-
-    return this.avatarPalette[Math.abs(hash) % this.avatarPalette.length]!;
   }
 
   private get searchBarTemplate(): TemplateResult {
@@ -455,13 +427,13 @@ export class EmployeeDetails extends LitElement {
   }
 
   private renderEmployeeCard(employee: Employee): TemplateResult {
-    const initials = this.getInitials(employee.name);
-    const avatarColor = this.getAvatarColor(employee.name || employee.id);
+    const initials = getInitials(employee.name);
+    const avatarVariant = getAvatarVariant(employee.name || employee.id);
 
     return html`
       <li class="employee-card">
         <div class="card-top">
-          <span class="card-avatar" style="background:${avatarColor}"
+          <span class="card-avatar avatar-${avatarVariant}"
             >${initials}</span
           >
           <span class="card-name">${employee.name || "—"}</span>

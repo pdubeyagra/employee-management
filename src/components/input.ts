@@ -1,4 +1,4 @@
-import { LitElement, css, html, unsafeCSS } from "lit";
+import { LitElement, css, html, nothing, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { generateThemeCSSVariables } from "../theme/colors.js";
 import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "../theme/layout.js";
@@ -25,6 +25,9 @@ export class AppInput extends LitElement {
 
   @property()
   error = "";
+
+  @property({ type: Number })
+  maxlength = 0;
 
   @property({ type: Boolean })
   required = false;
@@ -174,8 +177,9 @@ export class AppInput extends LitElement {
             type=${this.type}
             .value=${this.value}
             placeholder=${this.placeholder}
-            inputmode=${this.inputmode || undefined}
-            autocomplete=${this.autocomplete || undefined}
+            inputmode=${this.inputmode || nothing}
+            autocomplete=${this.autocomplete || nothing}
+            maxlength=${this.maxlength > 0 ? this.maxlength : nothing}
             class=${this.invalid ? "invalid" : ""}
             aria-invalid=${this.invalid ? "true" : "false"}
             @input=${this.handleInput}

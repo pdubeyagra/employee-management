@@ -4,6 +4,7 @@ import { customElement, state } from "lit/decorators.js";
 import "./employee-form.ts";
 import "./employee-details.ts";
 import "./components/button.ts";
+import "./components/toast.ts";
 
 import type { Employee } from "./components/employee-table.ts";
 import { generateThemeCSSVariables } from "./theme/colors.js";
@@ -133,6 +134,12 @@ export class EmployeePage extends LitElement {
       width: 100%;
       min-width: 0;
     }
+
+    @media (prefers-reduced-motion: reduce) {
+      .form-panel {
+        transition: none;
+      }
+    }
   `;
 
   private openForm() {
@@ -189,13 +196,29 @@ export class EmployeePage extends LitElement {
 
     const employeeToDelete = event.detail;
 
-    this.employees = this.employees.filter(
+    const remaining = this.employees.filter(
       (employee) => employee.id !== employeeToDelete.id,
     );
+
+    if (remaining.length === this.employees.length) {
+      return;
+    }
+
+    this.employees = remaining;
 
     if (this.employeeBeingEdited?.id === employeeToDelete.id) {
       this.closeForm();
     }
+
+    this.showToast("Employee deleted successfully!", "success");
+  }
+
+  private showToast(message: string, variant: "success" | "error" | "info") {
+    const toast = this.renderRoot.querySelector("app-toast") as HTMLElement & {
+      show?: (message: string, variant?: "success" | "error" | "info") => void;
+    };
+
+    toast?.show?.(message, variant);
   }
 
   private get heroTemplate(): TemplateResult {
@@ -254,6 +277,8 @@ export class EmployeePage extends LitElement {
           </section>
         </div>
       </main>
+
+      <app-toast></app-toast>
     `;
   }
 

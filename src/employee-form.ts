@@ -6,6 +6,7 @@ import "./components/toast.ts";
 import "./components/input.ts";
 
 import {
+  FIELD_MAX_LENGTHS,
   validateEmployeeField,
   validateEmployeeForm,
   isEmployeeFormValid,
@@ -223,8 +224,6 @@ export class EmployeeForm extends LitElement {
       this.dispatchEvent(
         new CustomEvent<Employee>("employee-updated", {
           detail: updatedEmployee,
-          bubbles: true,
-          composed: true,
         }),
       );
 
@@ -245,8 +244,6 @@ export class EmployeeForm extends LitElement {
     this.dispatchEvent(
       new CustomEvent<Omit<Employee, "id">>("employee-added", {
         detail: newEmployee,
-        bubbles: true,
-        composed: true,
       }),
     );
 
@@ -263,7 +260,6 @@ export class EmployeeForm extends LitElement {
     ) as HTMLFormElement | null;
 
     if (!form) {
-      console.error("Employee form not found");
       return;
     }
 
@@ -286,12 +282,7 @@ export class EmployeeForm extends LitElement {
     };
 
     if (this.employeeToEdit) {
-      this.dispatchEvent(
-        new CustomEvent("edit-cancelled", {
-          bubbles: true,
-          composed: true,
-        }),
-      );
+      this.dispatchEvent(new CustomEvent("edit-cancelled"));
     }
   }
 
@@ -388,6 +379,7 @@ export class EmployeeForm extends LitElement {
           <div class="form-input-section">
             <app-input
               label="Name"
+              .maxlength=${FIELD_MAX_LENGTHS.name}
               placeholder="Enter employee name"
               .value=${this.formData.name}
               .error=${this.errors.name}
@@ -402,6 +394,7 @@ export class EmployeeForm extends LitElement {
 
             <app-input
               label="Department"
+              .maxlength=${FIELD_MAX_LENGTHS.department}
               placeholder="e.g. Engineering"
               .value=${this.formData.department}
               .error=${this.errors.department}
@@ -416,6 +409,7 @@ export class EmployeeForm extends LitElement {
 
             <app-input
               label="Designation"
+              .maxlength=${FIELD_MAX_LENGTHS.designation}
               placeholder="e.g. Software Engineer"
               .value=${this.formData.designation}
               .error=${this.errors.designation}
@@ -430,9 +424,10 @@ export class EmployeeForm extends LitElement {
 
             <app-input
               label="Email"
+              .maxlength=${FIELD_MAX_LENGTHS.email}
               type="email"
               inputmode="email"
-              autocomplete="email"
+              autocomplete="off"
               placeholder="employee@example.com"
               .value=${this.formData.email}
               .error=${this.errors.email}

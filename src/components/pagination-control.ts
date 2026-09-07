@@ -155,7 +155,7 @@ export class PaginationControl extends LitElement {
       display: none;
     }
 
-    @media (max-width: 640px) {
+    @media (max-width: 768px) {
       .pagination {
         justify-content: center;
       }
@@ -262,11 +262,20 @@ export class PaginationControl extends LitElement {
      */
     result.push(total);
 
-    /*
-     * Remove duplicates.
-     */
-    return result.filter((item, index, array) => {
-      return array.indexOf(item) === index;
+    const seen = new Set<number>();
+
+    return result.filter((item) => {
+      if (item === "ellipsis") {
+        return true;
+      }
+
+      if (seen.has(item)) {
+        return false;
+      }
+
+      seen.add(item);
+
+      return true;
     });
   }
 

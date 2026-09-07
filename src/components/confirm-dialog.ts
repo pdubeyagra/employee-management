@@ -96,6 +96,12 @@ export class ConfirmDialog extends LitElement {
       color: var(--color-text-secondary);
     }
 
+    .close-icon-button:focus-visible {
+      outline: 3px solid var(--color-primary-light);
+      outline-offset: 2px;
+      color: var(--color-text-secondary);
+    }
+
     .close-icon-button svg {
       width: 18px;
       height: 18px;
