@@ -1,7 +1,7 @@
 import { expect } from "chai";
 
-import "../../src/components/pagination-control.ts";
-import type { PaginationControl } from "../../src/components/pagination-control.ts";
+import "../../src/components/shared/pagination-control.ts";
+import type { PaginationControl } from "../../src/components/shared/pagination-control.ts";
 import {
   click,
   mount,

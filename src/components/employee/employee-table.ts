@@ -10,14 +10,7 @@ import {
   getAvatarVariant,
   getInitials,
 } from "../../utils/avatar.js";
-
-export interface Employee {
-  id: string;
-  name: string;
-  department: string;
-  designation: string;
-  email: string;
-}
+import type { Employee } from "../../types/employee-types.js";
 
 @customElement("employee-table")
 export class EmployeeTable extends LitElement {
@@ -257,7 +250,7 @@ export class EmployeeTable extends LitElement {
         ${this.searchActive
           ? ""
           : html`
-              <app-button
+              <ui-button
                 variant="primary"
                 size="medium"
                 shape="rounded"
@@ -265,7 +258,7 @@ export class EmployeeTable extends LitElement {
                 @button-click=${this.handleAddEmployee}
               >
                 + Add Employee
-              </app-button>
+              </ui-button>
             `}
       </div>
     `;
@@ -294,7 +287,7 @@ export class EmployeeTable extends LitElement {
 
         <td>
           <div class="actions">
-            <app-button
+            <ui-button
               variant="primary"
               size="small"
               shape="rounded"
@@ -316,9 +309,9 @@ export class EmployeeTable extends LitElement {
                 <path d="M12 20h9" />
                 <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
               </svg>
-            </app-button>
+            </ui-button>
 
-            <app-button
+            <ui-button
               variant="danger"
               size="small"
               shape="rounded"
@@ -343,7 +336,7 @@ export class EmployeeTable extends LitElement {
                 <path d="M10 11v5" />
                 <path d="M14 11v5" />
               </svg>
-            </app-button>
+            </ui-button>
           </div>
         </td>
       </tr>

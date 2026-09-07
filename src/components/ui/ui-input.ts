@@ -5,9 +5,10 @@ import {
   LAYOUT_CONFIG,
   generateLayoutCSSVariables,
 } from "../../theme/layout.js";
+import type { InputChangeDetail } from "../../types/input-types.js";
 
-@customElement("app-input")
-export class AppInput extends LitElement {
+@customElement("ui-input")
+export class UiInput extends LitElement {
   @property()
   label = "";
 
@@ -146,7 +147,7 @@ export class AppInput extends LitElement {
     this.value = input.value;
 
     this.dispatchEvent(
-      new CustomEvent("input-change", {
+      new CustomEvent<InputChangeDetail>("input-change", {
         detail: {
           value: input.value,
         },

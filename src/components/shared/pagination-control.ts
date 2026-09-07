@@ -5,6 +5,10 @@ import {
   LAYOUT_CONFIG,
   generateLayoutCSSVariables,
 } from "../../theme/layout.js";
+import type {
+  PaginationDirection,
+  PaginationPage,
+} from "../../types/pagination-types.js";
 
 @customElement("pagination-control")
 export class PaginationControl extends LitElement {
@@ -229,7 +233,7 @@ export class PaginationControl extends LitElement {
       return Array.from({ length: total }, (_, index) => index + 1);
     }
 
-    const result: Array<number | "ellipsis"> = [];
+    const result: PaginationPage[] = [];
 
     /*
      * Always show first page.
@@ -314,7 +318,7 @@ export class PaginationControl extends LitElement {
     this.changePage(this.totalPages);
   }
 
-  private renderArrow(direction: "previous" | "next") {
+  private renderArrow(direction: PaginationDirection) {
     return direction === "previous"
       ? html`
           <svg

@@ -1,7 +1,7 @@
 import { expect } from "chai";
 
-import "../../src/components/button.ts";
-import type { AppButton } from "../../src/components/button.ts";
+import "../../src/components/ui/ui-button.ts";
+import type { UiButton } from "../../src/components/ui/ui-button.ts";
 import {
   click,
   mount,
@@ -11,7 +11,7 @@ import {
 } from "../helpers/dom.ts";
 
 async function mountButton(properties: Record<string, unknown> = {}) {
-  const button = await mount<AppButton>("app-button", properties);
+  const button = await mount<UiButton>("ui-button", properties);
 
   return {
     button,
@@ -19,7 +19,7 @@ async function mountButton(properties: Record<string, unknown> = {}) {
   };
 }
 
-describe("<app-button>", () => {
+describe("<ui-button>", () => {
   it("defaults to a primary, medium, rounded, non-submitting button", async () => {
     const { button, inner } = await mountButton();
 

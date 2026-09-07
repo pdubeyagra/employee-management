@@ -1,20 +1,26 @@
 import { LitElement, css, html, unsafeCSS, type TemplateResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 
-import "./components/ui/button.ts";
+import "./components/ui/ui-button.ts";
+import "./components/ui/ui-input.ts";
 import "./components/shared/toast.ts";
-import "./components/ui/input.ts";
 
 import {
   FIELD_MAX_LENGTHS,
   validateEmployeeField,
   validateEmployeeForm,
   isEmployeeFormValid,
-  type EmployeeErrors,
-  type EmployeeField,
 } from "./utils/employee-validation.ts";
 
-import type { Employee } from "./components/employee/employee-table.ts";
+import type {
+  Employee,
+  EmployeeErrors,
+  EmployeeField,
+  EmployeeFormData,
+  NewEmployee,
+} from "./types/employee-types.ts";
+import type { InputChangeDetail } from "./types/input-types.ts";
+import type { ToastHost, ToastVariant } from "./types/toast-types.ts";
 import { generateThemeCSSVariables } from "./theme/colors.js";
 import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "./theme/layout.js";
 
@@ -24,7 +30,7 @@ export class EmployeeForm extends LitElement {
   employeeToEdit: Employee | null = null;
 
   @state()
-  private formData = {
+  private formData: EmployeeFormData = {
     name: "",
     department: "",
     designation: "",
@@ -136,7 +142,7 @@ export class EmployeeForm extends LitElement {
       margin-top: var(--spacing-sm);
     }
 
-    app-button {
+    ui-button {
       flex: 0 1 auto;
       min-width: 120px;
     }
@@ -178,7 +184,10 @@ export class EmployeeForm extends LitElement {
     }
   }
 
-  private handleInput(field: EmployeeField, event: CustomEvent) {
+  private handleInput(
+    field: EmployeeField,
+    event: CustomEvent<InputChangeDetail>,
+  ) {
     const value = event.detail.value;
 
     this.formData = {
@@ -234,7 +243,7 @@ export class EmployeeForm extends LitElement {
       return;
     }
 
-    const newEmployee: Omit<Employee, "id"> = {
+    const newEmployee: NewEmployee = {
       name: this.formData.name.trim(),
       department: this.formData.department.trim(),
       designation: this.formData.designation.trim(),
@@ -242,7 +251,7 @@ export class EmployeeForm extends LitElement {
     };
 
     this.dispatchEvent(
-      new CustomEvent<Omit<Employee, "id">>("employee-added", {
+      new CustomEvent<NewEmployee>("employee-added", {
         detail: newEmployee,
       }),
     );
@@ -286,10 +295,8 @@ export class EmployeeForm extends LitElement {
     }
   }
 
-  private showToast(message: string, variant: "success" | "error" | "info") {
-    const toast = this.renderRoot.querySelector("app-toast") as HTMLElement & {
-      show?: (message: string, variant?: "success" | "error" | "info") => void;
-    };
+  private showToast(message: string, variant: ToastVariant) {
+    const toast = this.renderRoot.querySelector<ToastHost>("app-toast");
 
     toast?.show?.(message, variant);
   }
@@ -377,7 +384,7 @@ export class EmployeeForm extends LitElement {
 
         <form class="employee-form" novalidate @submit=${this.handleSubmit}>
           <div class="form-input-section">
-            <app-input
+            <ui-input
               label="Name"
               .maxlength=${FIELD_MAX_LENGTHS.name}
               placeholder="Enter employee name"
@@ -385,14 +392,14 @@ export class EmployeeForm extends LitElement {
               .error=${this.errors.name}
               .invalid=${Boolean(this.errors.name)}
               required
-              @input-change=${(event: CustomEvent) =>
+              @input-change=${(event: CustomEvent<InputChangeDetail>) =>
                 this.handleInput("name", event)}
               @input-blur=${() => this.handleBlur("name")}
             >
               ${this.renderFieldIcon("name")}
-            </app-input>
+            </ui-input>
 
-            <app-input
+            <ui-input
               label="Department"
               .maxlength=${FIELD_MAX_LENGTHS.department}
               placeholder="e.g. Engineering"
@@ -400,14 +407,14 @@ export class EmployeeForm extends LitElement {
               .error=${this.errors.department}
               .invalid=${Boolean(this.errors.department)}
               required
-              @input-change=${(event: CustomEvent) =>
+              @input-change=${(event: CustomEvent<InputChangeDetail>) =>
                 this.handleInput("department", event)}
               @input-blur=${() => this.handleBlur("department")}
             >
               ${this.renderFieldIcon("department")}
-            </app-input>
+            </ui-input>
 
-            <app-input
+            <ui-input
               label="Designation"
               .maxlength=${FIELD_MAX_LENGTHS.designation}
               placeholder="e.g. Software Engineer"
@@ -415,14 +422,14 @@ export class EmployeeForm extends LitElement {
               .error=${this.errors.designation}
               .invalid=${Boolean(this.errors.designation)}
               required
-              @input-change=${(event: CustomEvent) =>
+              @input-change=${(event: CustomEvent<InputChangeDetail>) =>
                 this.handleInput("designation", event)}
               @input-blur=${() => this.handleBlur("designation")}
             >
               ${this.renderFieldIcon("designation")}
-            </app-input>
+            </ui-input>
 
-            <app-input
+            <ui-input
               label="Email"
               .maxlength=${FIELD_MAX_LENGTHS.email}
               type="email"
@@ -433,25 +440,25 @@ export class EmployeeForm extends LitElement {
               .error=${this.errors.email}
               .invalid=${Boolean(this.errors.email)}
               required
-              @input-change=${(event: CustomEvent) =>
+              @input-change=${(event: CustomEvent<InputChangeDetail>) =>
                 this.handleInput("email", event)}
               @input-blur=${() => this.handleBlur("email")}
             >
               ${this.renderFieldIcon("email")}
-            </app-input>
+            </ui-input>
           </div>
 
           <div class="actions">
-            <app-button
+            <ui-button
               size="medium"
               @button-submit=${this.handleSubmitButton}
               shape="rounded"
               type="submit"
             >
               ${isEditing ? "Update Employee" : "Save"}
-            </app-button>
+            </ui-button>
 
-            <app-button
+            <ui-button
               variant="secondary"
               size="medium"
               shape="rounded"
@@ -459,7 +466,7 @@ export class EmployeeForm extends LitElement {
               @click=${this.handleClear}
             >
               ${isEditing ? "Cancel" : "Clear"}
-            </app-button>
+            </ui-button>
           </div>
         </form>
       </div>

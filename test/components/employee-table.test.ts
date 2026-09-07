@@ -1,11 +1,9 @@
 import { expect } from "chai";
 
 import "../../src/components/employee/employee-table.ts";
-import type {
-  Employee,
-  EmployeeTable,
-} from "../../src/components/employee/employee-table.ts";
-import type { AppButton } from "../../src/components/button.ts";
+import type { EmployeeTable } from "../../src/components/employee/employee-table.ts";
+import type { Employee } from "../../src/types/employee-types.ts";
+import type { UiButton } from "../../src/components/ui/ui-button.ts";
 import { makeEmployee, makeEmployees } from "../helpers/employees.ts";
 import {
   click,
@@ -27,8 +25,8 @@ function cellsOf(row: HTMLTableRowElement) {
 }
 
 function rowAction(row: HTMLTableRowElement, label: string) {
-  const button = row.querySelector<AppButton>(
-    `app-button[aria-label="${label}"]`,
+  const button = row.querySelector<UiButton>(
+    `ui-button[aria-label="${label}"]`,
   );
 
   if (!button) {
@@ -231,7 +229,7 @@ describe("<employee-table>", () => {
     it("emits add-employee from the empty state call to action", async () => {
       const table = await mount<EmployeeTable>("employee-table");
       const events = recordEvents(table, "add-employee");
-      const cta = queryRequired<AppButton>(table, ".empty-state app-button");
+      const cta = queryRequired<UiButton>(table, ".empty-state ui-button");
 
       click(queryRequired<HTMLButtonElement>(cta, "button"));
 

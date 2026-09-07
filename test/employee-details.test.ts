@@ -2,13 +2,11 @@ import { expect } from "chai";
 
 import "../src/employee-details.ts";
 import type { EmployeeDetails } from "../src/employee-details.ts";
-import type {
-  Employee,
-  EmployeeTable,
-} from "../src/components/employee/employee-table.ts";
-import type { PaginationControl } from "../src/components/pagination-control.ts";
+import type { EmployeeTable } from "../src/components/employee/employee-table.ts";
+import type { Employee } from "../src/types/employee-types.ts";
+import type { PaginationControl } from "../src/components/shared/pagination-control.ts";
 import type { ConfirmDialog } from "../src/components/shared/confirm-dialog.ts";
-import type { AppButton } from "../src/components/button.ts";
+import type { UiButton } from "../src/components/ui/ui-button.ts";
 import { makeEmployee, makeEmployees } from "./helpers/employees.ts";
 import {
   click,
@@ -411,7 +409,7 @@ describe("<employee-details>", () => {
       expect(text(emptyState)).to.contain(
         "Add an employee to see them listed here.",
       );
-      expect(query(details, ".list-view .empty-state app-button")).to.not.equal(
+      expect(query(details, ".list-view .empty-state ui-button")).to.not.equal(
         null,
       );
     });
@@ -427,7 +425,7 @@ describe("<employee-details>", () => {
 
       expect(text(emptyState)).to.contain("Try a different search term.");
       expect(
-        query(details, ".list-view .empty-state app-button"),
+        query(details, ".list-view .empty-state ui-button"),
         "adding is not the fix for a search that found nothing",
       ).to.equal(null);
     });
@@ -435,9 +433,9 @@ describe("<employee-details>", () => {
     it("emits add-employee from the empty state call to action", async () => {
       const details = await mount<EmployeeDetails>("employee-details");
       const events = recordEvents(details, "add-employee");
-      const cta = queryRequired<AppButton>(
+      const cta = queryRequired<UiButton>(
         details,
-        ".list-view .empty-state app-button",
+        ".list-view .empty-state ui-button",
       );
 
       click(queryRequired<HTMLButtonElement>(cta, "button"));
@@ -501,9 +499,9 @@ describe("<employee-details>", () => {
       });
       const events = recordEvents<Employee>(details, "employee-edit");
 
-      const editButton = queryRequired<AppButton>(
+      const editButton = queryRequired<UiButton>(
         details,
-        '.employee-card app-button[aria-label="Edit employee"]',
+        '.employee-card ui-button[aria-label="Edit employee"]',
       );
 
       click(queryRequired<HTMLButtonElement>(editButton, "button"));
@@ -518,9 +516,9 @@ describe("<employee-details>", () => {
         employees,
       });
 
-      const deleteButton = queryRequired<AppButton>(
+      const deleteButton = queryRequired<UiButton>(
         details,
-        '.employee-card app-button[aria-label="Delete employee"]',
+        '.employee-card ui-button[aria-label="Delete employee"]',
       );
 
       click(queryRequired<HTMLButtonElement>(deleteButton, "button"));

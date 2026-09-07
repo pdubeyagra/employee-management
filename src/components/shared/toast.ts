@@ -5,16 +5,10 @@ import {
   LAYOUT_CONFIG,
   generateLayoutCSSVariables,
 } from "../../theme/layout.js";
-
-type ToastVariant = "success" | "error" | "info";
-
-type ToastPlacement =
-  | "top-left"
-  | "top-center"
-  | "top-right"
-  | "bottom-left"
-  | "bottom-center"
-  | "bottom-right";
+import type {
+  ToastPlacement,
+  ToastVariant,
+} from "../../types/toast-types.js";
 
 @customElement("app-toast")
 export class AppToast extends LitElement {

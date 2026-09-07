@@ -4,9 +4,9 @@ import { customElement, property, state } from "lit/decorators.js";
 import "./components/employee/employee-table.ts";
 import "./components/shared/confirm-dialog.ts";
 import "./components/shared/pagination-control.ts";
-import "./components/ui/button.ts";
+import "./components/ui/ui-button.ts";
 
-import type { Employee } from "./components/employee/employee-table.ts";
+import type { Employee } from "./types/employee-types.ts";
 import { generateThemeCSSVariables } from "./theme/colors.js";
 import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "./theme/layout.js";
 import {
@@ -412,7 +412,7 @@ export class EmployeeDetails extends LitElement {
         ${this.searchQuery
           ? ""
           : html`
-              <app-button
+              <ui-button
                 variant="primary"
                 size="medium"
                 shape="rounded"
@@ -420,7 +420,7 @@ export class EmployeeDetails extends LitElement {
                 @button-click=${this.handleAddEmployeeBubbled}
               >
                 + Add Employee
-              </app-button>
+              </ui-button>
             `}
       </div>
     `;
@@ -453,7 +453,7 @@ export class EmployeeDetails extends LitElement {
         </div>
 
         <div class="card-actions">
-          <app-button
+          <ui-button
             variant="primary"
             size="small"
             shape="rounded"
@@ -475,9 +475,9 @@ export class EmployeeDetails extends LitElement {
               <path d="M12 20h9" />
               <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
             </svg>
-          </app-button>
+          </ui-button>
 
-          <app-button
+          <ui-button
             variant="danger"
             size="small"
             shape="rounded"
@@ -502,7 +502,7 @@ export class EmployeeDetails extends LitElement {
               <path d="M10 11v5" />
               <path d="M14 11v5" />
             </svg>
-          </app-button>
+          </ui-button>
         </div>
       </li>
     `;

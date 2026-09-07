@@ -1,7 +1,7 @@
 import { expect } from "chai";
 
-import "../../src/components/input.ts";
-import type { AppInput } from "../../src/components/input.ts";
+import "../../src/components/ui/ui-input.ts";
+import type { UiInput } from "../../src/components/ui/ui-input.ts";
 import {
   mount,
   query,
@@ -13,7 +13,7 @@ import {
 } from "../helpers/dom.ts";
 
 async function mountInput(properties: Record<string, unknown> = {}) {
-  const host = await mount<AppInput>("app-input", properties);
+  const host = await mount<UiInput>("ui-input", properties);
 
   return {
     host,
@@ -21,7 +21,7 @@ async function mountInput(properties: Record<string, unknown> = {}) {
   };
 }
 
-describe("<app-input>", () => {
+describe("<ui-input>", () => {
   it("renders the label and marks required fields with an asterisk", async () => {
     const { host } = await mountInput({ label: "Name" });
 

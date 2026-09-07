@@ -5,15 +5,15 @@ import {
   LAYOUT_CONFIG,
   generateLayoutCSSVariables,
 } from "../../theme/layout.js";
+import type {
+  ButtonShape,
+  ButtonSize,
+  ButtonType,
+  ButtonVariant,
+} from "../../types/button-types.js";
 
-type ButtonVariant = "primary" | "secondary" | "danger" | "success" | "ghost";
-
-type ButtonSize = "small" | "medium" | "large";
-
-type ButtonShape = "rounded" | "pill" | "square";
-
-@customElement("app-button")
-export class AppButton extends LitElement {
+@customElement("ui-button")
+export class UiButton extends LitElement {
   @property({ type: String })
   variant: ButtonVariant = "primary";
 
@@ -39,7 +39,7 @@ export class AppButton extends LitElement {
   fullWidth = false;
 
   @property({ type: String })
-  type: "button" | "submit" | "reset" = "button";
+  type: ButtonType = "button";
 
   static styles = css`
     :host {

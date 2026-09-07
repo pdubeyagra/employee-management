@@ -3,10 +3,11 @@ import { customElement, state } from "lit/decorators.js";
 
 import "./employee-form.ts";
 import "./employee-details.ts";
-import "./components/ui/button.ts";
+import "./components/ui/ui-button.ts";
 import "./components/shared/toast.ts";
 
-import type { Employee } from "./components/employee/employee-table.ts";
+import type { Employee, NewEmployee } from "./types/employee-types.ts";
+import type { ToastHost, ToastVariant } from "./types/toast-types.ts";
 import { generateThemeCSSVariables } from "./theme/colors.js";
 import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "./theme/layout.js";
 
@@ -100,7 +101,7 @@ export class EmployeePage extends LitElement {
       flex-shrink: 0;
     }
 
-    .hero-actions app-button {
+    .hero-actions ui-button {
       --color-primary: white;
       --color-text-on-primary: var(--color-primary);
     }
@@ -156,7 +157,7 @@ export class EmployeePage extends LitElement {
     this.openForm();
   }
 
-  private handleEmployeeAdded(event: CustomEvent<Omit<Employee, "id">>) {
+  private handleEmployeeAdded(event: CustomEvent<NewEmployee>) {
     event.stopPropagation();
 
     const employee: Employee = {
@@ -213,10 +214,8 @@ export class EmployeePage extends LitElement {
     this.showToast("Employee deleted successfully!", "success");
   }
 
-  private showToast(message: string, variant: "success" | "error" | "info") {
-    const toast = this.renderRoot.querySelector("app-toast") as HTMLElement & {
-      show?: (message: string, variant?: "success" | "error" | "info") => void;
-    };
+  private showToast(message: string, variant: ToastVariant) {
+    const toast = this.renderRoot.querySelector<ToastHost>("app-toast");
 
     toast?.show?.(message, variant);
   }
@@ -230,7 +229,7 @@ export class EmployeePage extends LitElement {
         </div>
 
         <div class="hero-actions">
-          <app-button
+          <ui-button
             variant="secondary"
             size="medium"
             shape="rounded"
@@ -238,7 +237,7 @@ export class EmployeePage extends LitElement {
             @button-click=${this.handleAddEmployeeRequested}
           >
             + Add Employee
-          </app-button>
+          </ui-button>
         </div>
       </header>
     `;

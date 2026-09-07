@@ -2,7 +2,8 @@ import { expect } from "chai";
 
 import "../../src/components/shared/confirm-dialog.ts";
 import type { ConfirmDialog } from "../../src/components/shared/confirm-dialog.ts";
-import type { AppButton } from "../../src/components/button.ts";
+import type { UiButton } from "../../src/components/ui/ui-button.ts";
+import type { UiDialog } from "../../src/components/ui/ui-dialog.ts";
 import {
   click,
   mount,
@@ -13,13 +14,17 @@ import {
   update,
 } from "../helpers/dom.ts";
 
+function shellOf(dialog: ConfirmDialog) {
+  return queryRequired<UiDialog>(dialog, "ui-dialog");
+}
+
 function actionButtons(dialog: ConfirmDialog) {
-  const buttons = queryAll<AppButton>(dialog, ".dialog-actions app-button");
+  const buttons = queryAll<UiButton>(dialog, ".dialog-actions ui-button");
 
   return { cancel: buttons[0]!, confirm: buttons[1]! };
 }
 
-function clickAppButton(button: AppButton) {
+function clickUiButton(button: UiButton) {
   click(queryRequired<HTMLButtonElement>(button, "button"));
 }
 
@@ -28,7 +33,9 @@ describe("<confirm-dialog>", () => {
     const dialog = await mount<ConfirmDialog>("confirm-dialog");
     const { cancel, confirm } = actionButtons(dialog);
 
-    expect(text(queryRequired(dialog, "#dialog-title"))).to.equal("Confirm");
+    expect(text(queryRequired(shellOf(dialog), "#dialog-title"))).to.equal(
+      "Confirm",
+    );
     expect(text(queryRequired(dialog, ".dialog-message"))).to.equal(
       "Are you sure?",
     );
@@ -46,7 +53,7 @@ describe("<confirm-dialog>", () => {
 
     const { cancel, confirm } = actionButtons(dialog);
 
-    expect(text(queryRequired(dialog, "#dialog-title"))).to.equal(
+    expect(text(queryRequired(shellOf(dialog), "#dialog-title"))).to.equal(
       "Delete Employee",
     );
     expect(text(queryRequired(dialog, ".dialog-message"))).to.equal(
@@ -56,28 +63,44 @@ describe("<confirm-dialog>", () => {
     expect(text(cancel)).to.equal("Keep");
   });
 
-  it("toggles the overlay's open class with the open property", async () => {
+  it("forwards its open state to the dialog shell", async () => {
     const dialog = await mount<ConfirmDialog>("confirm-dialog");
 
-    expect(queryRequired(dialog, ".overlay").className).to.not.contain("open");
+    expect(shellOf(dialog).open).to.equal(false);
+    expect(
+      queryRequired(shellOf(dialog), ".overlay").className,
+    ).to.not.contain("open");
 
     await update(dialog, { open: true });
+    await shellOf(dialog).updateComplete;
 
-    expect(queryRequired(dialog, ".overlay").className).to.contain("open");
+    expect(shellOf(dialog).open).to.equal(true);
+    expect(queryRequired(shellOf(dialog), ".overlay").className).to.contain(
+      "open",
+    );
   });
 
-  it("exposes the dialog as a labelled modal alertdialog", async () => {
+  it("asks the shell to expose itself as an alertdialog", async () => {
     const dialog = await mount<ConfirmDialog>("confirm-dialog", {
       open: true,
       title: "Delete Employee",
     });
 
-    const inner = queryRequired(dialog, ".dialog");
+    const shell = shellOf(dialog);
+    const inner = queryRequired(shell, ".dialog");
 
+    expect(shell.dialogRole).to.equal("alertdialog");
     expect(inner.getAttribute("role")).to.equal("alertdialog");
     expect(inner.getAttribute("aria-modal")).to.equal("true");
     expect(inner.getAttribute("aria-labelledby")).to.equal("dialog-title");
-    expect(queryRequired(dialog, "#dialog-title")).to.exist;
+  });
+
+  it("renders the confirm action with the requested variant", async () => {
+    const dialog = await mount<ConfirmDialog>("confirm-dialog", {
+      confirmVariant: "primary",
+    });
+
+    expect(actionButtons(dialog).confirm.variant).to.equal("primary");
   });
 
   it("emits confirm when the confirm action is clicked", async () => {
@@ -85,7 +108,7 @@ describe("<confirm-dialog>", () => {
     const confirms = recordEvents(dialog, "confirm");
     const cancels = recordEvents(dialog, "cancel");
 
-    clickAppButton(actionButtons(dialog).confirm);
+    clickUiButton(actionButtons(dialog).confirm);
 
     expect(confirms).to.have.lengthOf(1);
     expect(cancels).to.have.lengthOf(0);
@@ -96,21 +119,17 @@ describe("<confirm-dialog>", () => {
     const confirms = recordEvents(dialog, "confirm");
     const cancels = recordEvents(dialog, "cancel");
 
-    clickAppButton(actionButtons(dialog).cancel);
+    clickUiButton(actionButtons(dialog).cancel);
 
     expect(cancels).to.have.lengthOf(1);
     expect(confirms).to.have.lengthOf(0);
   });
 
-  it("emits cancel when the header close icon is clicked", async () => {
+  it("emits cancel when the shell requests a close", async () => {
     const dialog = await mount<ConfirmDialog>("confirm-dialog", { open: true });
     const cancels = recordEvents(dialog, "cancel");
 
-    const close = queryRequired(dialog, ".close-icon-button");
-
-    expect(close.getAttribute("aria-label")).to.equal("Close");
-
-    click(close);
+    click(queryRequired(shellOf(dialog), ".close-icon-button"));
 
     expect(cancels).to.have.lengthOf(1);
   });
@@ -119,7 +138,7 @@ describe("<confirm-dialog>", () => {
     const dialog = await mount<ConfirmDialog>("confirm-dialog", { open: true });
     const cancels = recordEvents(dialog, "cancel");
 
-    click(queryRequired(dialog, ".overlay"));
+    click(queryRequired(shellOf(dialog), ".overlay"));
 
     expect(cancels).to.have.lengthOf(1);
   });
@@ -137,7 +156,7 @@ describe("<confirm-dialog>", () => {
     const dialog = await mount<ConfirmDialog>("confirm-dialog", { open: true });
     const onDocument = recordEvents(document.body, "confirm");
 
-    clickAppButton(actionButtons(dialog).confirm);
+    clickUiButton(actionButtons(dialog).confirm);
 
     expect(
       onDocument,

@@ -1,13 +1,8 @@
-export type EmployeeField = "name" | "department" | "designation" | "email";
-
-export interface EmployeeFormData {
-  name: string;
-  department: string;
-  designation: string;
-  email: string;
-}
-
-export type EmployeeErrors = Record<EmployeeField, string>;
+import type {
+  EmployeeErrors,
+  EmployeeField,
+  EmployeeFormData,
+} from "../types/employee-types.js";
 
 export const FIELD_MAX_LENGTHS: Record<EmployeeField, number> = {
   name: 100,

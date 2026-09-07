@@ -2,10 +2,10 @@ import { expect } from "chai";
 
 import "../src/employee-form.ts";
 import type { EmployeeForm } from "../src/employee-form.ts";
-import type { AppInput } from "../src/components/input.ts";
-import type { AppButton } from "../src/components/button.ts";
+import type { UiInput } from "../src/components/ui/ui-input.ts";
+import type { UiButton } from "../src/components/ui/ui-button.ts";
 import type { AppToast } from "../src/components/shared/toast.ts";
-import type { Employee } from "../src/components/employee/employee-table.ts";
+import type { Employee, NewEmployee } from "../src/types/employee-types.ts";
 import { FIELD_MAX_LENGTHS } from "../src/utils/employee-validation.ts";
 import { makeEmployee } from "./helpers/employees.ts";
 import {
@@ -24,9 +24,9 @@ const FIELD_ORDER = ["name", "department", "designation", "email"] as const;
 
 type FieldName = (typeof FIELD_ORDER)[number];
 
-function fields(form: EmployeeForm): Record<FieldName, AppInput> {
-  const inputs = queryAll<AppInput>(form, "app-input");
-  const byName = {} as Record<FieldName, AppInput>;
+function fields(form: EmployeeForm): Record<FieldName, UiInput> {
+  const inputs = queryAll<UiInput>(form, "ui-input");
+  const byName = {} as Record<FieldName, UiInput>;
 
   FIELD_ORDER.forEach((field, index) => {
     byName[field] = inputs[index]!;
@@ -60,12 +60,12 @@ async function fillAll(
 }
 
 const actionButtons = (form: EmployeeForm) =>
-  queryAll<AppButton>(form, ".actions app-button");
+  queryAll<UiButton>(form, ".actions ui-button");
 
 const submitButton = (form: EmployeeForm) => actionButtons(form)[0]!;
 const secondaryButton = (form: EmployeeForm) => actionButtons(form)[1]!;
 
-function pressButton(button: AppButton) {
+function pressButton(button: UiButton) {
   click(queryRequired<HTMLButtonElement>(button, "button"));
 }
 
@@ -89,7 +89,7 @@ describe("<employee-form>", () => {
   describe("rendering", () => {
     it("renders the four required fields with their labels", async () => {
       const form = await mount<EmployeeForm>("employee-form");
-      const inputs = queryAll<AppInput>(form, "app-input");
+      const inputs = queryAll<UiInput>(form, "ui-input");
 
       expect(inputs.map((input) => input.label)).to.deep.equal([
         "Name",
@@ -252,7 +252,7 @@ describe("<employee-form>", () => {
 
     it("emits employee-added with the trimmed values and no id", async () => {
       const form = await mount<EmployeeForm>("employee-form");
-      const added = recordEvents<Omit<Employee, "id">>(form, "employee-added");
+      const added = recordEvents<NewEmployee>(form, "employee-added");
 
       await fillAll(form, {
         name: "  Ada Lovelace  ",

@@ -4,9 +4,9 @@ import "../src/employee-page.ts";
 import type { EmployeePage } from "../src/employee-page.ts";
 import type { EmployeeForm } from "../src/employee-form.ts";
 import type { EmployeeDetails } from "../src/employee-details.ts";
-import type { AppButton } from "../src/components/button.ts";
+import type { UiButton } from "../src/components/ui/ui-button.ts";
 import type { AppToast } from "../src/components/shared/toast.ts";
-import type { Employee } from "../src/components/employee/employee-table.ts";
+import type { NewEmployee } from "../src/types/employee-types.ts";
 import {
   click,
   mount,
@@ -33,14 +33,14 @@ const isFormOpen = (page: EmployeePage) =>
 const roster = (page: EmployeePage) => detailsOf(page).employees;
 
 async function pressAddEmployee(page: EmployeePage) {
-  const button = queryRequired<AppButton>(page, ".hero-actions app-button");
+  const button = queryRequired<UiButton>(page, ".hero-actions ui-button");
 
   click(queryRequired<HTMLButtonElement>(button, "button"));
 
   await page.updateComplete;
 }
 
-async function submitNew(page: EmployeePage, employee: Omit<Employee, "id">) {
+async function submitNew(page: EmployeePage, employee: NewEmployee) {
   formOf(page).dispatchEvent(
     new CustomEvent("employee-added", {
       detail: employee,

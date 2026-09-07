@@ -5,10 +5,12 @@ import {
   isEmployeeFormValid,
   validateEmployeeField,
   validateEmployeeForm,
-  type EmployeeErrors,
-  type EmployeeField,
-  type EmployeeFormData,
 } from "../../src/utils/employee-validation.ts";
+import type {
+  EmployeeErrors,
+  EmployeeField,
+  EmployeeFormData,
+} from "../../src/types/employee-types.ts";
 
 const validForm: EmployeeFormData = {
   name: "Ada Lovelace",

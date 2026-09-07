@@ -1,4 +1,4 @@
-import type { Employee } from "../../src/components/employee/employee-table.ts";
+import type { Employee } from "../../src/types/employee-types.ts";
 
 let sequence = 0;
 
