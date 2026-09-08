@@ -5,12 +5,19 @@ import {
   LAYOUT_CONFIG,
   generateLayoutCSSVariables,
 } from "../../theme/layout.js";
-import type {
-  ButtonShape,
-  ButtonSize,
-  ButtonType,
-  ButtonVariant,
-} from "../../types/button-types.js";
+
+export type ButtonVariant =
+  | "primary"
+  | "secondary"
+  | "danger"
+  | "success"
+  | "ghost";
+
+export type ButtonSize = "small" | "medium" | "large";
+
+export type ButtonShape = "rounded" | "pill" | "square";
+
+export type ButtonType = "button" | "submit" | "reset";
 
 @customElement("ui-button")
 export class UiButton extends LitElement {

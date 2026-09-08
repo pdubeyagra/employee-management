@@ -19,8 +19,8 @@ import type {
   EmployeeFormData,
   NewEmployee,
 } from "./types/employee-types.ts";
-import type { InputChangeDetail } from "./types/input-types.ts";
-import type { ToastHost, ToastVariant } from "./types/toast-types.ts";
+import type { InputChangeDetail } from "./components/ui/ui-input.ts";
+import type { ToastHost, ToastVariant } from "./components/shared/toast.ts";
 import { generateThemeCSSVariables } from "./theme/colors.js";
 import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "./theme/layout.js";
 

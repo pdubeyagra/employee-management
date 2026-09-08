@@ -5,7 +5,10 @@ import {
   LAYOUT_CONFIG,
   generateLayoutCSSVariables,
 } from "../../theme/layout.js";
-import type { DialogRole, DialogSize } from "../../types/dialog-types.js";
+
+export type DialogRole = "dialog" | "alertdialog";
+
+export type DialogSize = "small" | "medium" | "large";
 
 @customElement("ui-dialog")
 export class UiDialog extends LitElement {

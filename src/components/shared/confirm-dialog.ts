@@ -9,8 +9,8 @@ import {
   LAYOUT_CONFIG,
   generateLayoutCSSVariables,
 } from "../../theme/layout.js";
-import type { ButtonVariant } from "../../types/button-types.js";
-import type { DialogSize } from "../../types/dialog-types.js";
+import type { ButtonVariant } from "../ui/ui-button.js";
+import type { DialogSize } from "../ui/ui-dialog.js";
 
 @customElement("confirm-dialog")
 export class ConfirmDialog extends LitElement {

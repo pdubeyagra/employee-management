@@ -5,7 +5,10 @@ import {
   LAYOUT_CONFIG,
   generateLayoutCSSVariables,
 } from "../../theme/layout.js";
-import type { InputChangeDetail } from "../../types/input-types.js";
+
+export interface InputChangeDetail {
+  value: string;
+}
 
 @customElement("ui-input")
 export class UiInput extends LitElement {

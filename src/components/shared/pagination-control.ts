@@ -5,10 +5,10 @@ import {
   LAYOUT_CONFIG,
   generateLayoutCSSVariables,
 } from "../../theme/layout.js";
-import type {
-  PaginationDirection,
-  PaginationPage,
-} from "../../types/pagination-types.js";
+
+export type PaginationPage = number | "ellipsis";
+
+export type PaginationDirection = "previous" | "next";
 
 @customElement("pagination-control")
 export class PaginationControl extends LitElement {

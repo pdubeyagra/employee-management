@@ -7,7 +7,7 @@ import "./components/ui/ui-button.ts";
 import "./components/shared/toast.ts";
 
 import type { Employee, NewEmployee } from "./types/employee-types.ts";
-import type { ToastHost, ToastVariant } from "./types/toast-types.ts";
+import type { ToastHost, ToastVariant } from "./components/shared/toast.ts";
 import { generateThemeCSSVariables } from "./theme/colors.js";
 import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "./theme/layout.js";
 
