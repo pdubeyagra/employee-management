@@ -1,10 +1,10 @@
 import { expect } from "chai";
 
-import "../../src/components/employee/employee-table.ts";
-import type { EmployeeTable } from "../../src/components/employee/employee-table.ts";
-import type { Employee } from "../../src/types/employee-types.ts";
-import type { UiButton } from "../../src/components/ui/ui-button.ts";
-import { makeEmployee, makeEmployees } from "../helpers/employees.ts";
+import "../../../src/widgets/employee/employee-table.ts";
+import type { EmployeeTable } from "../../../src/widgets/employee/employee-table.ts";
+import type { Employee } from "../../../src/types/employee-types.ts";
+import type { UiButton } from "../../../src/components/ui/ui-button.ts";
+import { makeEmployee, makeEmployees } from "../../helpers/employees.ts";
 import {
   click,
   mount,
@@ -14,7 +14,7 @@ import {
   recordEvents,
   text,
   update,
-} from "../helpers/dom.ts";
+} from "../../helpers/dom.ts";
 
 function rows(table: EmployeeTable) {
   return queryAll<HTMLTableRowElement>(table, "tbody tr");

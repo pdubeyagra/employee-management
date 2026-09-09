@@ -1,13 +1,13 @@
 import { expect } from "chai";
 
-import "../src/employee-form.ts";
-import type { EmployeeForm } from "../src/employee-form.ts";
-import type { UiInput } from "../src/components/ui/ui-input.ts";
-import type { UiButton } from "../src/components/ui/ui-button.ts";
-import type { AppToast } from "../src/components/shared/toast.ts";
-import type { Employee, NewEmployee } from "../src/types/employee-types.ts";
-import { FIELD_MAX_LENGTHS } from "../src/utils/employee-validation.ts";
-import { makeEmployee } from "./helpers/employees.ts";
+import "../../../src/widgets/employee/employee-form.ts";
+import type { EmployeeForm } from "../../../src/widgets/employee/employee-form.ts";
+import type { UiInput } from "../../../src/components/ui/ui-input.ts";
+import type { UiButton } from "../../../src/components/ui/ui-button.ts";
+import type { AppToast } from "../../../src/components/shared/toast.ts";
+import type { Employee, NewEmployee } from "../../../src/types/employee-types.ts";
+import { FIELD_MAX_LENGTHS } from "../../../src/utils/employee-validation.ts";
+import { makeEmployee } from "../../helpers/employees.ts";
 import {
   click,
   mount,
@@ -18,7 +18,7 @@ import {
   text,
   typeInto,
   update,
-} from "./helpers/dom.ts";
+} from "../../helpers/dom.ts";
 
 const FIELD_ORDER = ["name", "department", "designation", "email"] as const;
 

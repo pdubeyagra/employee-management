@@ -1,16 +1,16 @@
 import { LitElement, css, html, unsafeCSS, type TemplateResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 
-import "./components/ui/ui-button.ts";
-import "./components/ui/ui-input.ts";
-import "./components/shared/toast.ts";
+import "../../components/ui/ui-button.ts";
+import "../../components/ui/ui-input.ts";
+import "../../components/shared/toast.ts";
 
 import {
   FIELD_MAX_LENGTHS,
   validateEmployeeField,
   validateEmployeeForm,
   isEmployeeFormValid,
-} from "./utils/employee-validation.ts";
+} from "../../utils/employee-validation.ts";
 
 import type {
   Employee,
@@ -18,11 +18,11 @@ import type {
   EmployeeField,
   EmployeeFormData,
   NewEmployee,
-} from "./types/employee-types.ts";
-import type { InputChangeDetail } from "./components/ui/ui-input.ts";
-import type { ToastHost, ToastVariant } from "./components/shared/toast.ts";
-import { generateThemeCSSVariables } from "./theme/colors.js";
-import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "./theme/layout.js";
+} from "../../types/employee-types.ts";
+import type { InputChangeDetail } from "../../components/ui/ui-input.ts";
+import type { ToastHost, ToastVariant } from "../../components/shared/toast.ts";
+import { generateThemeCSSVariables } from "../../theme/colors.js";
+import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "../../theme/layout.js";
 
 @customElement("employee-form")
 export class EmployeeForm extends LitElement {

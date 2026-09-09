@@ -1,12 +1,13 @@
 import { expect } from "chai";
 
-import "../src/employee-page.ts";
-import type { EmployeePage } from "../src/employee-page.ts";
-import type { EmployeeForm } from "../src/employee-form.ts";
-import type { EmployeeDetails } from "../src/employee-details.ts";
-import type { UiButton } from "../src/components/ui/ui-button.ts";
-import type { AppToast } from "../src/components/shared/toast.ts";
-import type { NewEmployee } from "../src/types/employee-types.ts";
+import "../../../src/widgets/employee/employee-widget.ts";
+import type { EmployeeWidget } from "../../../src/widgets/employee/employee-widget.ts";
+import type { EmployeeForm } from "../../../src/widgets/employee/employee-form.ts";
+import type { EmployeeDetails } from "../../../src/widgets/employee/employee-details.ts";
+import type { UiButton } from "../../../src/components/ui/ui-button.ts";
+import type { AppToast } from "../../../src/components/shared/toast.ts";
+import type { NewEmployee } from "../../../src/types/employee-types.ts";
+import { employeeStore } from "../../../src/widgets/employee/employee-store.ts";
 import {
   click,
   mount,
@@ -14,25 +15,25 @@ import {
   queryRequired,
   recordEvents,
   text,
-} from "./helpers/dom.ts";
+} from "../../helpers/dom.ts";
 
-const formOf = (page: EmployeePage) =>
+const formOf = (page: EmployeeWidget) =>
   queryRequired<EmployeeForm>(page, "employee-form");
 
-const detailsOf = (page: EmployeePage) =>
+const detailsOf = (page: EmployeeWidget) =>
   queryRequired<EmployeeDetails>(page, "employee-details");
 
-const formPanelOf = (page: EmployeePage) => queryRequired(page, ".form-panel");
+const formPanelOf = (page: EmployeeWidget) => queryRequired(page, ".form-panel");
 
-const toastOf = (page: EmployeePage) =>
+const toastOf = (page: EmployeeWidget) =>
   queryRequired<AppToast>(page, "app-toast");
 
-const isFormOpen = (page: EmployeePage) =>
+const isFormOpen = (page: EmployeeWidget) =>
   formPanelOf(page).className.includes("open");
 
-const roster = (page: EmployeePage) => detailsOf(page).employees;
+const roster = (page: EmployeeWidget) => detailsOf(page).employees;
 
-async function pressAddEmployee(page: EmployeePage) {
+async function pressAddEmployee(page: EmployeeWidget) {
   const button = queryRequired<UiButton>(page, ".hero-actions ui-button");
 
   click(queryRequired<HTMLButtonElement>(button, "button"));
@@ -40,7 +41,7 @@ async function pressAddEmployee(page: EmployeePage) {
   await page.updateComplete;
 }
 
-async function submitNew(page: EmployeePage, employee: NewEmployee) {
+async function submitNew(page: EmployeeWidget, employee: NewEmployee) {
   formOf(page).dispatchEvent(
     new CustomEvent("employee-added", {
       detail: employee,
@@ -53,7 +54,7 @@ async function submitNew(page: EmployeePage, employee: NewEmployee) {
 }
 
 async function emitFromDetails(
-  page: EmployeePage,
+  page: EmployeeWidget,
   type: string,
   detail?: unknown,
 ) {
@@ -78,10 +79,14 @@ const GRACE = {
   email: "grace@example.com",
 };
 
-describe("<employee-page>", () => {
+describe("<employee-widget>", () => {
+  beforeEach(() => {
+    employeeStore.reset();
+  });
+
   describe("initial state", () => {
     it("renders the hero, form and details", async () => {
-      const page = await mount<EmployeePage>("employee-page");
+      const page = await mount<EmployeeWidget>("employee-widget");
 
       expect(text(query(page, ".hero-title"))).to.equal("Employee Management");
       expect(query(page, "employee-form")).to.not.equal(null);
@@ -89,7 +94,7 @@ describe("<employee-page>", () => {
     });
 
     it("starts with an empty roster and a collapsed form", async () => {
-      const page = await mount<EmployeePage>("employee-page");
+      const page = await mount<EmployeeWidget>("employee-widget");
 
       expect(roster(page)).to.deep.equal([]);
       expect(isFormOpen(page)).to.equal(false);
@@ -99,7 +104,7 @@ describe("<employee-page>", () => {
 
   describe("opening the form", () => {
     it("expands the panel when Add Employee is pressed", async () => {
-      const page = await mount<EmployeePage>("employee-page");
+      const page = await mount<EmployeeWidget>("employee-widget");
 
       await pressAddEmployee(page);
 
@@ -107,7 +112,7 @@ describe("<employee-page>", () => {
     });
 
     it("expands the panel when the details view asks to add", async () => {
-      const page = await mount<EmployeePage>("employee-page");
+      const page = await mount<EmployeeWidget>("employee-widget");
 
       await emitFromDetails(page, "add-employee");
 
@@ -115,7 +120,7 @@ describe("<employee-page>", () => {
     });
 
     it("opens in add mode, not edit mode", async () => {
-      const page = await mount<EmployeePage>("employee-page");
+      const page = await mount<EmployeeWidget>("employee-widget");
 
       await pressAddEmployee(page);
 
@@ -125,7 +130,7 @@ describe("<employee-page>", () => {
 
   describe("adding", () => {
     it("appends the employee with a generated id", async () => {
-      const page = await mount<EmployeePage>("employee-page");
+      const page = await mount<EmployeeWidget>("employee-widget");
 
       await submitNew(page, ADA);
 
@@ -135,7 +140,7 @@ describe("<employee-page>", () => {
     });
 
     it("gives each employee a distinct id", async () => {
-      const page = await mount<EmployeePage>("employee-page");
+      const page = await mount<EmployeeWidget>("employee-widget");
 
       await submitNew(page, ADA);
       await submitNew(page, ADA);
@@ -146,7 +151,7 @@ describe("<employee-page>", () => {
     });
 
     it("keeps insertion order", async () => {
-      const page = await mount<EmployeePage>("employee-page");
+      const page = await mount<EmployeeWidget>("employee-widget");
 
       await submitNew(page, ADA);
       await submitNew(page, GRACE);
@@ -158,7 +163,7 @@ describe("<employee-page>", () => {
     });
 
     it("collapses the form once the employee is added", async () => {
-      const page = await mount<EmployeePage>("employee-page");
+      const page = await mount<EmployeeWidget>("employee-widget");
 
       await pressAddEmployee(page);
       await submitNew(page, ADA);
@@ -169,7 +174,7 @@ describe("<employee-page>", () => {
 
   describe("editing", () => {
     async function pageWithTwo() {
-      const page = await mount<EmployeePage>("employee-page");
+      const page = await mount<EmployeeWidget>("employee-widget");
 
       await submitNew(page, ADA);
       await submitNew(page, GRACE);
@@ -263,7 +268,7 @@ describe("<employee-page>", () => {
 
   describe("deleting", () => {
     async function pageWithTwo() {
-      const page = await mount<EmployeePage>("employee-page");
+      const page = await mount<EmployeeWidget>("employee-widget");
 
       await submitNew(page, ADA);
       await submitNew(page, GRACE);
@@ -321,7 +326,7 @@ describe("<employee-page>", () => {
 
   describe("toasts", () => {
     async function pageWithTwo() {
-      const page = await mount<EmployeePage>("employee-page");
+      const page = await mount<EmployeeWidget>("employee-widget");
 
       await submitNew(page, ADA);
       await submitNew(page, GRACE);
@@ -330,7 +335,7 @@ describe("<employee-page>", () => {
     }
 
     it("stays quiet until something happens", async () => {
-      const page = await mount<EmployeePage>("employee-page");
+      const page = await mount<EmployeeWidget>("employee-widget");
 
       expect(toastOf(page).open).to.equal(false);
     });
@@ -368,7 +373,7 @@ describe("<employee-page>", () => {
     });
 
     it("leaves the add confirmation to the form's own toast", async () => {
-      const page = await mount<EmployeePage>("employee-page");
+      const page = await mount<EmployeeWidget>("employee-widget");
 
       await submitNew(page, ADA);
 
@@ -381,7 +386,7 @@ describe("<employee-page>", () => {
 
   describe("event containment", () => {
     it("keeps the child events from escaping to the host document", async () => {
-      const page = await mount<EmployeePage>("employee-page");
+      const page = await mount<EmployeeWidget>("employee-widget");
       const escaped = [
         "employee-added",
         "employee-updated",

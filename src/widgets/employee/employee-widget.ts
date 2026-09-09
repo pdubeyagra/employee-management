@@ -3,18 +3,20 @@ import { customElement, state } from "lit/decorators.js";
 
 import "./employee-form.ts";
 import "./employee-details.ts";
-import "./components/ui/ui-button.ts";
-import "./components/shared/toast.ts";
+import "../../components/ui/ui-button.ts";
+import "../../components/shared/toast.ts";
 
-import type { Employee, NewEmployee } from "./types/employee-types.ts";
-import type { ToastHost, ToastVariant } from "./components/shared/toast.ts";
-import { generateThemeCSSVariables } from "./theme/colors.js";
-import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "./theme/layout.js";
+import type { Employee, NewEmployee } from "../../types/employee-types.ts";
+import type { WidgetDefinition } from "../widget-registry.ts";
+import type { ToastHost, ToastVariant } from "../../components/shared/toast.ts";
+import { employeeStore, type Unsubscribe } from "./employee-store.ts";
+import { generateThemeCSSVariables } from "../../theme/colors.js";
+import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "../../theme/layout.js";
 
-@customElement("employee-page")
-export class EmployeePage extends LitElement {
+@customElement("employee-widget")
+export class EmployeeWidget extends LitElement {
   @state()
-  private employees: Employee[] = [];
+  private employees: Employee[] = employeeStore.getAll();
 
   @state()
   private employeeBeingEdited: Employee | null = null;
@@ -22,11 +24,13 @@ export class EmployeePage extends LitElement {
   @state()
   private isFormOpen = false;
 
+  private unsubscribeFromStore?: Unsubscribe;
+
   static styles = css`
     :host {
       display: block;
       width: 100%;
-      min-height: 100vh;
+      min-height: 100%;
       box-sizing: border-box;
       ${unsafeCSS(generateThemeCSSVariables())}
       ${unsafeCSS(generateLayoutCSSVariables())}
@@ -43,7 +47,7 @@ export class EmployeePage extends LitElement {
 
     .page {
       width: 100%;
-      min-height: 100vh;
+      min-height: 100%;
       padding: clamp(var(--spacing-lg), 5vw, var(--spacing-3xl));
       display: flex;
       flex-direction: column;
@@ -143,6 +147,40 @@ export class EmployeePage extends LitElement {
     }
   `;
 
+  connectedCallback() {
+    super.connectedCallback();
+
+    this.applyEmployees(employeeStore.getAll());
+
+    this.unsubscribeFromStore = employeeStore.subscribe((employees) => {
+      this.applyEmployees(employees);
+    });
+  }
+
+  disconnectedCallback() {
+    this.unsubscribeFromStore?.();
+    this.unsubscribeFromStore = undefined;
+
+    super.disconnectedCallback();
+  }
+
+  /**
+   * Another tab may delete the employee this one has open in its form, so the
+   * roster arriving from the store is what decides whether the edit survives.
+   */
+  private applyEmployees(employees: Employee[]) {
+    this.employees = employees;
+
+    const beingEdited = this.employeeBeingEdited;
+
+    if (
+      beingEdited &&
+      !employees.some((employee) => employee.id === beingEdited.id)
+    ) {
+      this.closeForm();
+    }
+  }
+
   private openForm() {
     this.isFormOpen = true;
   }
@@ -160,12 +198,7 @@ export class EmployeePage extends LitElement {
   private handleEmployeeAdded(event: CustomEvent<NewEmployee>) {
     event.stopPropagation();
 
-    const employee: Employee = {
-      id: crypto.randomUUID(),
-      ...event.detail,
-    };
-
-    this.employees = [...this.employees, employee];
+    employeeStore.add(event.detail);
     this.closeForm();
   }
 
@@ -179,12 +212,7 @@ export class EmployeePage extends LitElement {
   private handleEmployeeUpdated(event: CustomEvent<Employee>) {
     event.stopPropagation();
 
-    const updatedEmployee = event.detail;
-
-    this.employees = this.employees.map((employee) =>
-      employee.id === updatedEmployee.id ? updatedEmployee : employee,
-    );
-
+    employeeStore.update(event.detail);
     this.closeForm();
   }
 
@@ -197,18 +225,8 @@ export class EmployeePage extends LitElement {
 
     const employeeToDelete = event.detail;
 
-    const remaining = this.employees.filter(
-      (employee) => employee.id !== employeeToDelete.id,
-    );
-
-    if (remaining.length === this.employees.length) {
+    if (!employeeStore.remove(employeeToDelete.id)) {
       return;
-    }
-
-    this.employees = remaining;
-
-    if (this.employeeBeingEdited?.id === employeeToDelete.id) {
-      this.closeForm();
     }
 
     this.showToast("Employee deleted successfully!", "success");
@@ -285,3 +303,31 @@ export class EmployeePage extends LitElement {
     return this.template;
   }
 }
+
+/**
+ * How the shell lists, addresses and mounts this widget. A widget folder is
+ * self-describing: ship the element and its definition together, then add the
+ * definition to the catalog.
+ */
+export const employeeWidgetDefinition: WidgetDefinition = {
+  id: "employees",
+  title: "Employees",
+  description: "Add, search, edit and remove the people in your organisation.",
+  icon: html`
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    </svg>
+  `,
+  render: () => html`<employee-widget></employee-widget>`,
+};

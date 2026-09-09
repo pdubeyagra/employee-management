@@ -1,19 +1,19 @@
 import { LitElement, css, html, unsafeCSS, type TemplateResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 
-import "./components/employee/employee-table.ts";
-import "./components/shared/confirm-dialog.ts";
-import "./components/shared/pagination-control.ts";
-import "./components/ui/ui-button.ts";
+import "./employee-table.ts";
+import "../../components/shared/confirm-dialog.ts";
+import "../../components/shared/pagination-control.ts";
+import "../../components/ui/ui-button.ts";
 
-import type { Employee } from "./types/employee-types.ts";
-import { generateThemeCSSVariables } from "./theme/colors.js";
-import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "./theme/layout.js";
+import type { Employee } from "../../types/employee-types.ts";
+import { generateThemeCSSVariables } from "../../theme/colors.js";
+import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "../../theme/layout.js";
 import {
   generateAvatarClasses,
   getAvatarVariant,
   getInitials,
-} from "./utils/avatar.js";
+} from "../../utils/avatar.js";
 
 @customElement("employee-details")
 export class EmployeeDetails extends LitElement {
