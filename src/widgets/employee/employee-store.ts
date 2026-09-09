@@ -4,11 +4,6 @@ export type EmployeeStoreListener = (employees: Employee[]) => void;
 
 export type Unsubscribe = () => void;
 
-/**
- * The roster lives here rather than inside the widget so that every open tab
- * showing the employee widget reads and writes the same list. Two tabs on the
- * same widget behave like two views of one dataset, not two datasets.
- */
 export class EmployeeStore {
   private employees: Employee[] = [];
 
@@ -34,10 +29,6 @@ export class EmployeeStore {
     return created;
   }
 
-  /**
-   * Returns false when the id is unknown, so callers can tell a real update
-   * apart from a write against an employee another tab already removed.
-   */
   update(employee: Employee): boolean {
     if (!this.employees.some((current) => current.id === employee.id)) {
       return false;
@@ -64,7 +55,6 @@ export class EmployeeStore {
     return true;
   }
 
-  /** Test seam: drops every employee and notifies subscribers. */
   reset() {
     this.commit([]);
   }

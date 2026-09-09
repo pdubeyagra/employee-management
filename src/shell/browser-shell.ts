@@ -120,7 +120,6 @@ export class BrowserShell extends LitElement {
     }
   }
 
-  /** Opens on the first registered widget, or the launcher when there is none. */
   private homeUrl(): string {
     const [first] = listWidgets();
 

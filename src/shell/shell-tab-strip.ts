@@ -10,12 +10,8 @@ import { customElement, property } from "lit/decorators.js";
 import { repeat } from "lit/directives/repeat.js";
 
 import { generateThemeCSSVariables } from "../theme/colors.js";
-import {
-  LAYOUT_CONFIG,
-  generateLayoutCSSVariables,
-} from "../theme/layout.js";
+import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "../theme/layout.js";
 
-/** One tab as the strip needs to draw it; the shell owns the real tab state. */
 export interface TabView {
   id: string;
   title: string;
@@ -240,7 +236,6 @@ export class ShellTabStrip extends LitElement {
     this.emit("tab-close", tabId);
   }
 
-  /** Middle click closes a tab, the way it does in a browser. */
   private handleAuxClick(event: MouseEvent, tabId: string) {
     if (event.button !== 1) {
       return;

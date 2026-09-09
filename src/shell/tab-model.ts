@@ -1,19 +1,9 @@
 import { NEW_TAB_URL } from "./shell-url.ts";
 
-/**
- * A tab is its own history stack, the way a browser tab is. The shell holds a
- * list of these and an active id; every operation here returns new objects so
- * Lit sees a changed reference and re-renders.
- */
 export interface ShellTab {
   id: string;
   history: string[];
   historyIndex: number;
-
-  /**
-   * Bumped on reload. It is part of the render key, so reloading throws the
-   * widget's element away and builds a fresh one.
-   */
   generation: number;
 }
 
@@ -43,10 +33,6 @@ export function goForward(tab: ShellTab): ShellTab {
     : tab;
 }
 
-/**
- * Navigating away from a point in the middle of the history drops whatever was
- * ahead of it, matching how a browser discards the forward stack.
- */
 export function navigate(tab: ShellTab, url: string): ShellTab {
   if (currentUrl(tab) === url) {
     return tab;
@@ -61,7 +47,6 @@ export function reload(tab: ShellTab): ShellTab {
   return { ...tab, generation: tab.generation + 1 };
 }
 
-/** Identity of the rendered widget instance; changing it remounts the widget. */
 export function paneKey(tab: ShellTab): string {
   return `${tab.id}::${currentUrl(tab)}::${tab.generation}`;
 }
@@ -76,14 +61,9 @@ export function findTab(tabs: ShellTab[], tabId: string): ShellTab | undefined {
 
 export interface CloseTabResult {
   tabs: ShellTab[];
-  /** Null once the last tab is gone; the shell opens a fresh one. */
   activeId: string | null;
 }
 
-/**
- * Closing the active tab hands focus to its right-hand neighbour, falling back
- * to the left when it was the last tab -- the same rule browsers use.
- */
 export function closeTab(
   tabs: ShellTab[],
   tabId: string,

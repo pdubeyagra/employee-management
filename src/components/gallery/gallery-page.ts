@@ -7,10 +7,6 @@ import {
   generateLayoutCSSVariables,
 } from "../../theme/layout.js";
 
-/**
- * The page frame every component gallery widget sits in: a heading, the
- * address it answers on, and a column for the demo cards.
- */
 @customElement("gallery-page")
 export class GalleryPage extends LitElement {
   @property()
@@ -19,7 +15,6 @@ export class GalleryPage extends LitElement {
   @property()
   description = "";
 
-  /** Shown as a chip, so the page states the address it is reachable at. */
   @property()
   address = "";
 

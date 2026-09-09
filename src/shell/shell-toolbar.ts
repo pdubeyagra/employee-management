@@ -2,10 +2,7 @@ import { LitElement, css, html, unsafeCSS, type TemplateResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 
 import { generateThemeCSSVariables } from "../theme/colors.js";
-import {
-  LAYOUT_CONFIG,
-  generateLayoutCSSVariables,
-} from "../theme/layout.js";
+import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "../theme/layout.js";
 
 @customElement("shell-toolbar")
 export class ShellToolbar extends LitElement {
@@ -18,11 +15,9 @@ export class ShellToolbar extends LitElement {
   @property({ type: Boolean, attribute: "can-go-forward" })
   canGoForward = false;
 
-  /** False when the address does not resolve to a registered widget. */
   @property({ type: Boolean })
   resolved = true;
 
-  /** What the user has typed, which only becomes the URL on submit. */
   @state()
   private draft = "";
 
@@ -211,7 +206,6 @@ export class ShellToolbar extends LitElement {
     this.emit("navigate", this.draft);
   }
 
-  /** Escape abandons an edit and puts the real address back. */
   private handleKeyDown(event: KeyboardEvent) {
     if (event.key !== "Escape") {
       return;

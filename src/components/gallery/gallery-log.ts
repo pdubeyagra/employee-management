@@ -7,10 +7,6 @@ import {
   generateLayoutCSSVariables,
 } from "../../theme/layout.js";
 
-/**
- * Shows the events a demo has fired, newest first, so the gallery proves which
- * event name a component actually dispatches.
- */
 @customElement("gallery-log")
 export class GalleryLog extends LitElement {
   @property({ type: Array })
@@ -95,7 +91,9 @@ export class GalleryLog extends LitElement {
       <ul class="log" aria-live="polite" aria-label="Event log">
         ${this.entries.map(
           (entry, index) =>
-            html`<li class="entry ${index === 0 ? "latest" : ""}">${entry}</li>`,
+            html`<li class="entry ${index === 0 ? "latest" : ""}">
+              ${entry}
+            </li>`,
         )}
       </ul>
     `;

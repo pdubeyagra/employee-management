@@ -9,10 +9,6 @@ import {
 
 export type GalleryDemoLayout = "row" | "stack";
 
-/**
- * One card in a gallery page: a label, an optional snippet showing how the
- * example is written, and the live example itself in the default slot.
- */
 @customElement("gallery-demo")
 export class GalleryDemo extends LitElement {
   @property()
@@ -21,7 +17,6 @@ export class GalleryDemo extends LitElement {
   @property()
   hint = "";
 
-  /** Markup for the example, rendered as a copyable snippet. */
   @property()
   code = "";
 

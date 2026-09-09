@@ -2,16 +2,9 @@ import { LitElement, css, html, unsafeCSS, type TemplateResult } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
 import { generateThemeCSSVariables } from "../theme/colors.js";
-import {
-  LAYOUT_CONFIG,
-  generateLayoutCSSVariables,
-} from "../theme/layout.js";
+import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "../theme/layout.js";
 import type { WidgetDefinition } from "../widgets/widget-registry.ts";
 
-/**
- * The launcher shown on a new tab. The shell also uses it as the page for an
- * address that matches no widget, which is why the copy is a property.
- */
 @customElement("shell-new-tab")
 export class ShellNewTab extends LitElement {
   @property({ type: Array })
