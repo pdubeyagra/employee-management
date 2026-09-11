@@ -34,14 +34,6 @@ export const DEPARTMENT_OPTIONS = asOptions(DEPARTMENTS);
 
 export const DESIGNATION_OPTIONS = asOptions(DESIGNATIONS);
 
-/**
- * Appends `value` to `options` when it is not already one of them.
- *
- * Employees stored before a list changed can hold a value that is no longer
- * offered. Without this the select would fall back to its placeholder and the
- * next save would quietly wipe the field, so the stored value stays selectable
- * until someone deliberately picks a different one.
- */
 export function withCurrentValue(
   options: SelectOption[],
   value: string,
