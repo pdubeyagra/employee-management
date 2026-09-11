@@ -6,12 +6,10 @@ import type { UiInput } from "@/components/ui/ui-input.ts";
 import type { UiSelect } from "@/components/ui/ui-select.ts";
 import type { UiButton } from "@/components/ui/ui-button.ts";
 import type { AppToast } from "@/components/shared/toast.ts";
-import type { Employee, NewEmployee } from "@/features/employee/employee-types.ts";
-import { FIELD_MAX_LENGTHS } from "@/features/employee/employee-validation.ts";
-import {
-  DEPARTMENTS,
-  DESIGNATIONS,
-} from "@/features/employee/employee-options.ts";
+import type { Employee, NewEmployee } from "@/types/employee-types.ts";
+import { FIELD_MAX_LENGTHS } from "@/features/employee/components/employee-form.ts";
+import { DEPARTMENTS } from "@/features/employee/constant/department.constant.ts";
+import { DESIGNATIONS } from "@/features/employee/constant/designation.constant.ts";
 import { makeEmployee } from "../../helpers/employees.ts";
 import {
   click,

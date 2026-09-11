@@ -91,29 +91,29 @@ export const generateThemeCSSVariables = (): string => {
     --color-primary: ${THEME_COLORS.primary[600]};
     --color-primary-hover: ${THEME_COLORS.primary[700]};
     --color-primary-light: ${THEME_COLORS.primary[50]};
-    
+
     --color-secondary: ${THEME_COLORS.gray[200]};
     --color-secondary-hover: ${THEME_COLORS.gray[300]};
-    
+
     --color-success: ${THEME_COLORS.success[600]};
     --color-success-hover: ${THEME_COLORS.success[700]};
-    
+
     --color-danger: ${THEME_COLORS.danger[600]};
     --color-danger-hover: ${THEME_COLORS.danger[700]};
-    
+
     --color-warning: ${THEME_COLORS.warning[600]};
-    
+
     --color-text-primary: ${THEME_COLORS.text.primary};
     --color-text-secondary: ${THEME_COLORS.text.secondary};
     --color-text-tertiary: ${THEME_COLORS.text.tertiary};
     --color-text-inverse: ${THEME_COLORS.text.inverse};
-    
+
     --color-background: ${THEME_COLORS.background.light};
     --color-background-secondary: ${THEME_COLORS.gray[50]};
-    
+
     --color-border: ${THEME_COLORS.border.light};
     --color-border-secondary: ${THEME_COLORS.border.medium};
-    
+
     --color-shadow: ${THEME_COLORS.shadow};
   `;
 };

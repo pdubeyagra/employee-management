@@ -1,12 +1,12 @@
 import { expect } from "chai";
 
+import { DEPARTMENTS } from "@/features/employee/constant/department.constant.ts";
+import { DESIGNATIONS } from "@/features/employee/constant/designation.constant.ts";
 import {
-  DEPARTMENTS,
-  DESIGNATIONS,
   DEPARTMENT_OPTIONS,
   DESIGNATION_OPTIONS,
   withCurrentValue,
-} from "@/features/employee/employee-options.ts";
+} from "@/features/employee/components/employee-form.ts";
 
 describe("employee options", () => {
   it("stores what it displays, so nothing needs decoding elsewhere", () => {

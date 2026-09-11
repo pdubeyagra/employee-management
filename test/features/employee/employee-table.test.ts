@@ -2,7 +2,7 @@ import { expect } from "chai";
 
 import "@/features/employee/components/employee-table.ts";
 import type { EmployeeTable } from "@/features/employee/components/employee-table.ts";
-import type { Employee } from "@/features/employee/employee-types.ts";
+import type { Employee } from "@/types/employee-types.ts";
 import type { UiButton } from "@/components/ui/ui-button.ts";
 import { makeEmployee, makeEmployees } from "../../helpers/employees.ts";
 import {

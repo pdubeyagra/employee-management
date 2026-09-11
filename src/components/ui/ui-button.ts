@@ -79,9 +79,6 @@ export class UiButton extends LitElement {
       box-sizing: border-box;
     }
 
-    /*
-     * Explicit full-width mode
-     */
     :host([full-width]) {
       display: block;
       width: 100%;
@@ -120,32 +117,17 @@ export class UiButton extends LitElement {
         opacity 0.2s ease;
     }
 
-    /*
-     * Explicit full-width mode
-     */
     :host([full-width]) button {
       width: 100%;
     }
 
-    /*
-     * Active
-     */
     button:active:not(:disabled) {
       transform: translateY(1px);
     }
 
-    /*
-     * Keyboard focus
-     */
     button:focus-visible {
       box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
     }
-
-    /*
-     * =========================
-     * Sizes
-     * =========================
-     */
 
     button.small {
       min-height: 32px;
@@ -165,12 +147,6 @@ export class UiButton extends LitElement {
       font-size: 16px;
     }
 
-    /*
-     * =========================
-     * Shapes
-     * =========================
-     */
-
     button.rounded {
       border-radius: var(--button-radius);
     }
@@ -182,12 +158,6 @@ export class UiButton extends LitElement {
     button.square {
       border-radius: 0;
     }
-
-    /*
-     * =========================
-     * Variants
-     * =========================
-     */
 
     button.primary {
       background: var(--button-primary);
@@ -234,12 +204,6 @@ export class UiButton extends LitElement {
       background: var(--color-background-secondary);
     }
 
-    /*
-     * =========================
-     * Icon only
-     * =========================
-     */
-
     button.icon-only.small {
       width: 32px;
       min-width: 32px;
@@ -261,22 +225,10 @@ export class UiButton extends LitElement {
       padding: 0;
     }
 
-    /*
-     * =========================
-     * Disabled
-     * =========================
-     */
-
     button:disabled {
       cursor: not-allowed;
       opacity: 0.55;
     }
-
-    /*
-     * =========================
-     * Loading
-     * =========================
-     */
 
     .spinner {
       width: 16px;
@@ -297,12 +249,6 @@ export class UiButton extends LitElement {
         transform: rotate(360deg);
       }
     }
-
-    /*
-     * =========================
-     * Slotted icons
-     * =========================
-     */
 
     ::slotted(svg) {
       width: 18px;

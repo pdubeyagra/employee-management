@@ -1,18 +1,21 @@
 import { LitElement, css, html, unsafeCSS, type TemplateResult } from "lit";
-import { customElement, state } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 
-import "./components/employee-form.ts";
-import "./components/employee-details.ts";
+import "@/features/employee/components/employee-form.ts";
+import "@/features/employee/components/employee-details.ts";
 import "@/components/ui/ui-button.ts";
 import "@/components/shared/toast.ts";
 
-import type { Employee, NewEmployee } from "./employee-types.ts";
+import type { Employee, NewEmployee } from "@/types/employee-types.ts";
 import type { ToastHost, ToastVariant } from "@/components/shared/toast.ts";
 import { generateThemeCSSVariables } from "@/theme/colors.js";
 import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "@/theme/layout.js";
 
 @customElement("employee-widget")
 export class EmployeeWidget extends LitElement {
+  @property({ type: Boolean })
+  loading = false;
+
   @state()
   private employees: Employee[] = [];
 
@@ -157,10 +160,6 @@ export class EmployeeWidget extends LitElement {
     this.openForm();
   }
 
-  /**
-   * The hero button doubles as the dismiss control, so it closes the panel when
-   * it is already showing instead of re-opening it.
-   */
   private handleToggleFormRequested(event: Event) {
     event.stopPropagation();
 
@@ -292,6 +291,7 @@ export class EmployeeWidget extends LitElement {
 
             <employee-details
               .employees=${this.employees}
+              .loading=${this.loading}
               @employee-delete=${this.handleEmployeeDelete}
               @employee-edit=${this.handleEmployeeEdit}
               @add-employee=${this.handleAddEmployeeRequested}

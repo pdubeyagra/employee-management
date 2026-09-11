@@ -1,10 +1,10 @@
 import { expect } from "chai";
 
-import "@/features/employee/employee-widget.ts";
-import type { EmployeeWidget } from "@/features/employee/employee-widget.ts";
+import "@/widget/employee-widget.ts";
+import type { EmployeeWidget } from "@/widget/employee-widget.ts";
 import type { EmployeeForm } from "@/features/employee/components/employee-form.ts";
 import type { EmployeeDetails } from "@/features/employee/components/employee-details.ts";
-import type { NewEmployee } from "@/features/employee/employee-types.ts";
+import type { NewEmployee } from "@/types/employee-types.ts";
 import type { UiButton } from "@/components/ui/ui-button.ts";
 import type { AppToast } from "@/components/shared/toast.ts";
 import {
@@ -444,5 +444,32 @@ describe("<employee-widget>", () => {
         0, 0, 0, 0, 0, 0,
       ]);
     });
+  });
+});
+
+describe("<employee-widget> loading", () => {
+  it("is not loading by default", async () => {
+    const widget = await mount<EmployeeWidget>("employee-widget");
+
+    expect(widget.loading).to.equal(false);
+    expect(detailsOf(widget).loading).to.equal(false);
+  });
+
+  it("hands the loading flag down to the roster", async () => {
+    const widget = await mount<EmployeeWidget>("employee-widget", {
+      loading: true,
+    });
+
+    expect(detailsOf(widget).loading).to.equal(true);
+  });
+
+  it("reads the flag from the attribute an embedder would set", async () => {
+    const widget = await mount<EmployeeWidget>("employee-widget");
+
+    widget.setAttribute("loading", "");
+    await widget.updateComplete;
+
+    expect(widget.loading).to.equal(true);
+    expect(detailsOf(widget).loading).to.equal(true);
   });
 });

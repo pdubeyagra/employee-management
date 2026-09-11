@@ -32,10 +32,6 @@ export class UiSelect extends LitElement {
   @property()
   value = "";
 
-  /**
-   * Text for the leading empty option. It stays selectable only while the
-   * field is optional, so a required field cannot be reset to "no answer".
-   */
   @property()
   placeholder = "Select an option";
 
@@ -57,17 +53,9 @@ export class UiSelect extends LitElement {
   @property({ type: Boolean })
   invalid = false;
 
-  /**
-   * Toolbar variant: no visible label and no error region, so the control is
-   * only as tall as the select itself. `label` becomes the accessible name.
-   */
   @property({ type: Boolean })
   compact = false;
 
-  /**
-   * Error produced by this component's own rules. A consumer-supplied `error`
-   * takes precedence, so a form that validates centrally keeps full control.
-   */
   @state()
   private selfError = "";
 
@@ -130,7 +118,6 @@ export class UiSelect extends LitElement {
       width: 100%;
       min-width: 0;
       height: 44px;
-      /* Room on the right for the chevron. */
       padding: var(--spacing-md) calc(var(--spacing-md) * 2 + 12px)
         var(--spacing-md) var(--spacing-md);
       color: var(--color-text-primary);
@@ -168,7 +155,6 @@ export class UiSelect extends LitElement {
       opacity: 0.7;
     }
 
-    /* Greys the placeholder row the way a text input's placeholder reads. */
     select.placeholder-selected {
       color: var(--color-text-tertiary);
     }
@@ -225,11 +211,6 @@ export class UiSelect extends LitElement {
 
   private hasIcon = false;
 
-  /**
-   * Lit commits the bindings on <select> before its <option> children exist, so
-   * assigning `value` in the template would silently fail to match an option.
-   * Syncing here runs once the options are in the DOM.
-   */
   protected updated() {
     const select = this.renderRoot.querySelector("select");
 
@@ -244,7 +225,6 @@ export class UiSelect extends LitElement {
     this.requestUpdate();
   }
 
-  /** Re-runs the basic rules and returns the resulting message. */
   validate(): string {
     const label = this.label || DEFAULT_FIELD_LABEL;
 
@@ -254,12 +234,10 @@ export class UiSelect extends LitElement {
     return this.selfError;
   }
 
-  /** The message actually shown: a consumer-supplied error wins. */
   get validationMessage(): string {
     return this.error || this.selfError;
   }
 
-  /** The option matching the current value, if the value is a known option. */
   get selectedOption(): SelectOption | null {
     return this.options.find((option) => option.value === this.value) ?? null;
   }

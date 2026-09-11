@@ -79,7 +79,7 @@ export const generateLayoutCSSVariables = (): string => {
     LAYOUT_CONFIG;
 
   return `
-    /* Spacing */
+
     --spacing-xs: ${spacing.xs};
     --spacing-sm: ${spacing.sm};
     --spacing-md: ${spacing.md};
@@ -88,13 +88,11 @@ export const generateLayoutCSSVariables = (): string => {
     --spacing-2xl: ${spacing["2xl"]};
     --spacing-3xl: ${spacing["3xl"]};
 
-    /* Border radius */
     --radius-sm: ${radius.sm};
     --radius-md: ${radius.md};
     --radius-lg: ${radius.lg};
     --radius-full: ${radius.full};
 
-    /* Font sizes */
     --font-size-xs: ${fontSize.xs};
     --font-size-sm: ${fontSize.sm};
     --font-size-base: ${fontSize.base};
@@ -105,25 +103,21 @@ export const generateLayoutCSSVariables = (): string => {
     --font-size-3xl: ${fontSize["3xl"]};
     --font-size-4xl: ${fontSize["4xl"]};
 
-    /* Line heights */
     --line-height-tight: ${lineHeight.tight};
     --line-height-normal: ${lineHeight.normal};
     --line-height-relaxed: ${lineHeight.relaxed};
     --line-height-loose: ${lineHeight.loose};
 
-    /* Shadows */
     --shadow-sm: ${shadows.sm};
     --shadow-base: ${shadows.base};
     --shadow-md: ${shadows.md};
     --shadow-lg: ${shadows.lg};
     --shadow-xl: ${shadows.xl};
 
-    /* Transitions */
     --transition-fast: ${transitions.fast};
     --transition-base: ${transitions.base};
     --transition-slow: ${transitions.slow};
 
-    /* Z-index */
     --z-hide: ${LAYOUT_CONFIG.zIndex.hide};
     --z-base: ${LAYOUT_CONFIG.zIndex.base};
     --z-dropdown: ${LAYOUT_CONFIG.zIndex.dropdown};

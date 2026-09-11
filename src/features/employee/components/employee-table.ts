@@ -2,7 +2,7 @@ import { LitElement, css, html, unsafeCSS, type TemplateResult } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { generateThemeCSSVariables } from "@/theme/colors.js";
 import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "@/theme/layout.js";
-import type { Employee } from "../employee-types.js";
+import type { Employee } from "@/types/employee-types.js";
 
 export const AVATAR_COLORS = [
   "#2563eb",

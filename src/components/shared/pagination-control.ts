@@ -16,29 +16,17 @@ export type PaginationDirection = "previous" | "next";
 
 export interface PageSizeChangeDetail {
   pageSize: number;
-  /** The page that keeps the current first item in view at the new size. */
+
   page: number;
 }
 
 export const DEFAULT_PAGE_SIZE_OPTIONS = [1, 5, 10, 20];
 
-/**
- * Presentational pager. It owns no data, so it drives client-side and
- * server-side pagination the same way:
- *
- * - client: the parent slices its own array on `page-change`/`page-size-change`
- * - server: the parent refetches with the new page/size and passes back the
- *   row count as `totalItems`; `loading` blocks input while that is in flight
- *
- * `totalPages` only needs to be set when the source reports pages rather than a
- * row count — otherwise it is derived from `totalItems` and `pageSize`.
- */
 @customElement("pagination-control")
 export class PaginationControl extends LitElement {
   @property({ type: Number })
   currentPage = 1;
 
-  /** Leave at 0 to derive from `totalItems` and `pageSize`. */
   @property({ type: Number })
   totalPages = 0;
 
@@ -60,7 +48,6 @@ export class PaginationControl extends LitElement {
   @property({ type: Boolean })
   showPageSize = true;
 
-  /** Blocks every control while the parent is fetching a page. */
   @property({ type: Boolean })
   loading = false;
 
@@ -277,10 +264,6 @@ export class PaginationControl extends LitElement {
     }
   `;
 
-  /**
-   * Pages reported by the source, or worked out from the row count when it
-   * reports one instead.
-   */
   get resolvedTotalPages(): number {
     if (this.totalPages > 0) {
       return this.totalPages;
@@ -310,30 +293,18 @@ export class PaginationControl extends LitElement {
     const total = this.resolvedTotalPages;
     const current = this.safeCurrentPage;
 
-    /*
-     * Show all pages when there are only a few.
-     */
     if (total <= 7) {
       return Array.from({ length: total }, (_, index) => index + 1);
     }
 
     const result: PaginationPage[] = [];
 
-    /*
-     * Always show first page.
-     */
     result.push(1);
 
-    /*
-     * Left ellipsis.
-     */
     if (current > 4) {
       result.push("ellipsis");
     }
 
-    /*
-     * Pages around current page.
-     */
     const start = Math.max(2, current - 1);
     const end = Math.min(total - 1, current + 1);
 
@@ -341,16 +312,10 @@ export class PaginationControl extends LitElement {
       result.push(page);
     }
 
-    /*
-     * Right ellipsis.
-     */
     if (current < total - 3) {
       result.push("ellipsis");
     }
 
-    /*
-     * Always show last page.
-     */
     result.push(total);
 
     const seen = new Set<number>();
@@ -399,10 +364,6 @@ export class PaginationControl extends LitElement {
       return;
     }
 
-    /*
-     * Keep the first row currently on screen in view rather than snapping back
-     * to page one — going 10 -> 20 while on page 3 should land on page 2.
-     */
     const firstItemIndex = (this.safeCurrentPage - 1) * this.pageSize;
     const nextPage = Math.floor(firstItemIndex / nextSize) + 1;
 
@@ -473,10 +434,7 @@ export class PaginationControl extends LitElement {
 
     return html`
       <div class="page-size">
-        <!--
-          The select carries the same text as its aria-label; aria-labelledby
-          cannot reach into ui-select's shadow root, so this copy is decorative.
-        -->
+
         <span class="page-size-label" aria-hidden="true">Rows per page</span>
 
         <ui-select
@@ -549,7 +507,6 @@ export class PaginationControl extends LitElement {
             ${this.renderArrow("previous")}
           </button>
 
-          <!-- Desktop page numbers -->
           <div class="desktop-pages">
             ${this.pages.map((page) =>
               page === "ellipsis"
@@ -569,7 +526,6 @@ export class PaginationControl extends LitElement {
             )}
           </div>
 
-          <!-- Mobile current page -->
           <span
             class="mobile-page"
             aria-label="Current page ${current} of ${total}"

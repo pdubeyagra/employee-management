@@ -6,18 +6,8 @@ import "@/components/ui/ui-input.ts";
 import "@/components/ui/ui-select.ts";
 import "@/components/shared/toast.ts";
 
-import {
-  FIELD_MAX_LENGTHS,
-  validateEmployeeField,
-  validateEmployeeForm,
-  isEmployeeFormValid,
-} from "../employee-validation.ts";
-
-import {
-  DEPARTMENT_OPTIONS,
-  DESIGNATION_OPTIONS,
-  withCurrentValue,
-} from "../employee-options.ts";
+import { DEPARTMENTS } from "../constant/department.constant.ts";
+import { DESIGNATIONS } from "../constant/designation.constant.ts";
 
 import type {
   Employee,
@@ -25,12 +15,95 @@ import type {
   EmployeeField,
   EmployeeFormData,
   NewEmployee,
-} from "../employee-types.ts";
-import type { InputChangeDetail } from "@/components/ui/ui-input.ts";
-import type { SelectChangeDetail } from "@/components/ui/ui-select.ts";
+} from "@/types/employee-types.ts";
+import {
+  validateFieldValue,
+  type FieldRules,
+  type InputChangeDetail,
+} from "@/components/ui/ui-input.ts";
+import type {
+  SelectChangeDetail,
+  SelectOption,
+} from "@/components/ui/ui-select.ts";
 import type { ToastHost, ToastVariant } from "@/components/shared/toast.ts";
 import { generateThemeCSSVariables } from "@/theme/colors.js";
 import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "@/theme/layout.js";
+
+const asOptions = (labels: readonly string[]): SelectOption[] =>
+  labels.map((label) => ({ value: label, label }));
+
+export const DEPARTMENT_OPTIONS = asOptions(DEPARTMENTS);
+
+export const DESIGNATION_OPTIONS = asOptions(DESIGNATIONS);
+
+export function withCurrentValue(
+  options: SelectOption[],
+  value: string,
+): SelectOption[] {
+  const current = value.trim();
+
+  if (!current || options.some((option) => option.value === current)) {
+    return options;
+  }
+
+  return [...options, { value: current, label: current }];
+}
+
+export const EMPLOYEE_FIELD_RULES: Record<EmployeeField, FieldRules> = {
+  name: {
+    label: "Name",
+    required: true,
+    maxlength: 100,
+  },
+  department: {
+    label: "Department",
+    required: true,
+    maxlength: 100,
+  },
+  designation: {
+    label: "Designation",
+    required: true,
+    maxlength: 100,
+  },
+  email: {
+    label: "Email",
+    required: true,
+    maxlength: 254,
+    type: "email",
+  },
+};
+
+export const EMPLOYEE_FIELDS = Object.keys(
+  EMPLOYEE_FIELD_RULES,
+) as EmployeeField[];
+
+export const FIELD_MAX_LENGTHS: Record<EmployeeField, number> =
+  Object.fromEntries(
+    EMPLOYEE_FIELDS.map((field) => [
+      field,
+      EMPLOYEE_FIELD_RULES[field].maxlength ?? 0,
+    ]),
+  ) as Record<EmployeeField, number>;
+
+export function validateEmployeeField(
+  field: EmployeeField,
+  value: string,
+): string {
+  return validateFieldValue(value, EMPLOYEE_FIELD_RULES[field]);
+}
+
+export function validateEmployeeForm(data: EmployeeFormData): EmployeeErrors {
+  return Object.fromEntries(
+    EMPLOYEE_FIELDS.map((field) => [
+      field,
+      validateEmployeeField(field, data[field]),
+    ]),
+  ) as EmployeeErrors;
+}
+
+export function isEmployeeFormValid(errors: EmployeeErrors): boolean {
+  return Object.values(errors).every((error) => !error);
+}
 
 @customElement("employee-form")
 export class EmployeeForm extends LitElement {
@@ -321,10 +394,6 @@ export class EmployeeForm extends LitElement {
     }
   }
 
-  /**
-   * Dismisses the form entirely. Unlike `handleClear`, this discards any
-   * in-progress input in add mode too, so reopening always starts blank.
-   */
   private handleClose(event: CustomEvent) {
     event.stopPropagation();
 

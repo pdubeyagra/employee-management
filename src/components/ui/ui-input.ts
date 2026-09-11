@@ -98,10 +98,6 @@ export class UiInput extends LitElement {
   @property({ type: Boolean })
   invalid = false;
 
-  /**
-   * Error produced by this component's own rules. A consumer-supplied `error`
-   * takes precedence, so a form that validates centrally keeps full control.
-   */
   @state()
   private selfError = "";
 
@@ -207,7 +203,6 @@ export class UiInput extends LitElement {
     this.requestUpdate();
   }
 
-  /** The rules this input enforces, assembled from its own properties. */
   get rules(): FieldRules {
     return {
       label: this.label,
@@ -220,14 +215,12 @@ export class UiInput extends LitElement {
     };
   }
 
-  /** Re-runs the basic rules and returns the resulting message. */
   validate(): string {
     this.selfError = validateFieldValue(this.value, this.rules);
 
     return this.selfError;
   }
 
-  /** The message actually shown: a consumer-supplied error wins. */
   get validationMessage(): string {
     return this.error || this.selfError;
   }

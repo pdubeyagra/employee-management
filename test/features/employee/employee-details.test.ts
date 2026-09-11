@@ -3,11 +3,12 @@ import { expect } from "chai";
 import "@/features/employee/components/employee-details.ts";
 import type { EmployeeDetails } from "@/features/employee/components/employee-details.ts";
 import type { EmployeeTable } from "@/features/employee/components/employee-table.ts";
-import type { Employee } from "@/features/employee/employee-types.ts";
+import type { Employee } from "@/types/employee-types.ts";
 import type { PaginationControl } from "@/components/shared/pagination-control.ts";
 import type { ConfirmDialog } from "@/components/shared/confirm-dialog.ts";
 import type { UiButton } from "@/components/ui/ui-button.ts";
 import type { UiSelect } from "@/components/ui/ui-select.ts";
+import type { UiCard } from "@/components/ui/ui-card.ts";
 import { makeEmployee, makeEmployees } from "../../helpers/employees.ts";
 import {
   click,
@@ -577,6 +578,80 @@ describe("<employee-details>", () => {
     });
   });
 
+  describe("loading", () => {
+    it("shows the roster rather than a placeholder by default", async () => {
+      const details = await mount<EmployeeDetails>("employee-details", {
+        employees: makeEmployees(3),
+      });
+
+      expect(query(details, "app-loading")).to.equal(null);
+      expect(query(details, "employee-table")).to.not.equal(null);
+    });
+
+    it("replaces both views with a skeleton while loading", async () => {
+      const details = await mount<EmployeeDetails>("employee-details", {
+        employees: makeEmployees(3),
+        loading: true,
+      });
+
+      expect(queryAll(details, ".loading-state")).to.have.lengthOf(2);
+      expect(query(details, "employee-table")).to.equal(null);
+      expect(query(details, "ui-card")).to.equal(null);
+    });
+
+    it("uses the skeleton variant sized to the page", async () => {
+      const details = await mount<EmployeeDetails>("employee-details", {
+        loading: true,
+      });
+
+      const skeleton = queryRequired(details, "app-loading") as HTMLElement & {
+        variant: string;
+        lines: number;
+      };
+
+      expect(skeleton.variant).to.equal("skeleton");
+      expect(skeleton.lines).to.equal(6);
+    });
+
+    it("passes its own label down to the indicator", async () => {
+      const details = await mount<EmployeeDetails>("employee-details", {
+        loading: true,
+        loadingLabel: "Fetching the team",
+      });
+
+      const skeleton = queryRequired(details, "app-loading") as HTMLElement & {
+        label: string;
+      };
+
+      expect(skeleton.label).to.equal("Fetching the team");
+    });
+
+    it("blocks the pager while loading", async () => {
+      const details = await mount<EmployeeDetails>("employee-details", {
+        employees: makeEmployees(25),
+        loading: true,
+      });
+
+      expect(paginationOf(details).loading).to.equal(true);
+
+      await update(details, { loading: false });
+
+      expect(paginationOf(details).loading).to.equal(false);
+    });
+
+    it("returns to the roster once loading finishes", async () => {
+      const details = await mount<EmployeeDetails>("employee-details", {
+        employees: makeEmployees(3),
+        loading: true,
+      });
+
+      await update(details, { loading: false });
+
+      expect(query(details, ".loading-state")).to.equal(null);
+      expect(query(details, "employee-table")).to.not.equal(null);
+    });
+  });
+
   describe("card list", () => {
     it("renders one card per employee on the current page", async () => {
       const details = await mount<EmployeeDetails>("employee-details", {
@@ -598,13 +673,41 @@ describe("<employee-details>", () => {
         ],
       });
 
-      const card = queryRequired(details, ".employee-card");
+      const card = queryRequired<UiCard>(details, "ui-card.employee-card");
 
-      expect(text(query(card, ".card-avatar"))).to.equal("AL");
-      expect(text(query(card, ".card-name"))).to.equal("Ada Lovelace");
+      expect(text(query(details, ".card-avatar"))).to.equal("AL");
+      expect(card.heading).to.equal("Ada Lovelace");
+      expect(card.badge, "the department reads as a badge").to.equal(
+        "Engineering",
+      );
       expect(
-        queryAll(card, ".card-value").map((value) => text(value)),
-      ).to.deep.equal(["Engineering", "Principal Engineer", "ada@example.com"]);
+        queryAll(details, ".card-value").map((value) => text(value)),
+      ).to.deep.equal(["Principal Engineer", "ada@example.com"]);
+    });
+
+    it("renders the name and department inside the shared card", async () => {
+      const details = await mount<EmployeeDetails>("employee-details", {
+        employees: [makeEmployee({ name: "Ada Lovelace" })],
+      });
+
+      const card = queryRequired<UiCard>(details, "ui-card.employee-card");
+      await card.updateComplete;
+
+      expect(text(query(card, ".heading"))).to.equal("Ada Lovelace");
+      expect(text(query(card, ".badge"))).to.equal("Engineering");
+    });
+
+    it("slots the avatar into the card's icon frame", async () => {
+      const details = await mount<EmployeeDetails>("employee-details", {
+        employees: [makeEmployee({ name: "Ada Lovelace" })],
+      });
+
+      const card = queryRequired<UiCard>(details, "ui-card.employee-card");
+      await card.updateComplete;
+
+      expect(queryRequired<HTMLElement>(card, ".icon-wrap").hidden).to.equal(
+        false,
+      );
     });
 
     it("requests an edit from the card's edit action", async () => {

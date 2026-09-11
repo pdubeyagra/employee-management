@@ -1,7 +1,7 @@
 import { LitElement, css, html, unsafeCSS, type TemplateResult } from "lit";
 import { customElement } from "lit/decorators.js";
 
-import "@/features/employee/index.ts";
+import "@/widget/employee-widget.ts";
 
 import { generateThemeCSSVariables } from "@/theme/colors.js";
 import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "@/theme/layout.js";

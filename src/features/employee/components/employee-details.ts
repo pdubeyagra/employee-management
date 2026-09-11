@@ -5,8 +5,10 @@ import "./employee-table.ts";
 import "@/components/shared/confirm-dialog.ts";
 import "@/components/shared/pagination-control.ts";
 import "@/components/ui/ui-button.ts";
+import "@/components/ui/ui-card.ts";
+import "@/components/shared/app-loading.ts";
 
-import type { Employee } from "../employee-types.ts";
+import type { Employee } from "@/types/employee-types.ts";
 import type { PageSizeChangeDetail } from "@/components/shared/pagination-control.ts";
 import { generateThemeCSSVariables } from "@/theme/colors.js";
 import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "@/theme/layout.js";
@@ -54,6 +56,12 @@ export const getInitials = (name: string): string => {
 export class EmployeeDetails extends LitElement {
   @property({ type: Array })
   employees: Employee[] = [];
+
+  @property({ type: Boolean })
+  loading = false;
+
+  @property({ type: String, attribute: "loading-label" })
+  loadingLabel = "Loading employees";
 
   @state()
   private employeeToDelete: Employee | null = null;
@@ -191,23 +199,6 @@ export class EmployeeDetails extends LitElement {
       gap: var(--spacing-md);
     }
 
-    .employee-card {
-      padding: var(--spacing-lg);
-      background: var(--color-background);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-sm);
-    }
-
-    .card-top {
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-md);
-      margin-bottom: var(--spacing-md);
-      padding-bottom: var(--spacing-md);
-      border-bottom: 1px solid var(--color-border);
-    }
-
     .card-avatar {
       display: inline-flex;
       align-items: center;
@@ -224,14 +215,10 @@ export class EmployeeDetails extends LitElement {
 
     ${unsafeCSS(generateAvatarClasses(".card-avatar"))}
 
-    .card-name {
-      min-width: 0;
-      color: var(--color-text-primary);
-      font-size: var(--font-size-base);
-      font-weight: 600;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+    .employee-card {
+      --card-icon-size: 36px;
+      --card-icon-radius: var(--radius-full);
+      --card-icon-background: transparent;
     }
 
     .employee-card-row {
@@ -262,13 +249,16 @@ export class EmployeeDetails extends LitElement {
       color: var(--color-primary);
     }
 
-    .card-actions {
+    .loading-state {
       display: flex;
-      flex-wrap: wrap;
-      gap: var(--spacing-md);
-      margin-top: var(--spacing-md);
-      padding-top: var(--spacing-md);
-      border-top: 1px solid var(--color-border);
+      flex-direction: column;
+      gap: var(--spacing-lg);
+      width: 100%;
+      min-height: 200px;
+      padding: var(--spacing-xl);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      background: var(--color-background-secondary);
     }
 
     .empty-state {
@@ -358,10 +348,6 @@ export class EmployeeDetails extends LitElement {
 
     this.pageSize = event.detail.pageSize;
 
-    /*
-     * The pager works out which page keeps the current first row in view; clamp
-     * it here because a smaller roster may have fewer pages at the new size.
-     */
     this.currentPage = Math.min(
       Math.max(1, event.detail.page),
       this.totalPages,
@@ -482,29 +468,35 @@ export class EmployeeDetails extends LitElement {
     const avatarVariant = getAvatarVariant(employee.name || employee.id);
 
     return html`
-      <li class="employee-card">
-        <div class="card-top">
-          <span class="card-avatar avatar-${avatarVariant}">${initials}</span>
-          <span class="card-name">${employee.name || "—"}</span>
-        </div>
+      <li>
+        <ui-card
+          class="employee-card"
+          variant="outlined"
+          padding="small"
+          dividers
+          full-height
+          .heading=${employee.name || "—"}
+          .badge=${employee.department || ""}
+        >
+          <span
+            slot="icon"
+            class="card-avatar avatar-${avatarVariant}"
+            aria-hidden="true"
+            >${initials}</span
+          >
 
-        <div class="employee-card-row">
-          <span class="card-label">Department</span>
-          <span class="card-value">${employee.department || "—"}</span>
-        </div>
+          <div class="employee-card-row">
+            <span class="card-label">Designation</span>
+            <span class="card-value">${employee.designation || "—"}</span>
+          </div>
 
-        <div class="employee-card-row">
-          <span class="card-label">Designation</span>
-          <span class="card-value">${employee.designation || "—"}</span>
-        </div>
+          <div class="employee-card-row">
+            <span class="card-label">Email</span>
+            <span class="card-value email">${employee.email || "—"}</span>
+          </div>
 
-        <div class="employee-card-row">
-          <span class="card-label">Email</span>
-          <span class="card-value email">${employee.email || "—"}</span>
-        </div>
-
-        <div class="card-actions">
           <ui-button
+            slot="footer"
             variant="primary"
             size="small"
             shape="rounded"
@@ -529,6 +521,7 @@ export class EmployeeDetails extends LitElement {
           </ui-button>
 
           <ui-button
+            slot="footer"
             variant="danger"
             size="small"
             shape="rounded"
@@ -554,7 +547,7 @@ export class EmployeeDetails extends LitElement {
               <path d="M14 11v5" />
             </svg>
           </ui-button>
-        </div>
+        </ui-card>
       </li>
     `;
   }
@@ -573,6 +566,18 @@ export class EmployeeDetails extends LitElement {
     `;
   }
 
+  private get loadingStateTemplate(): TemplateResult {
+    return html`
+      <div class="loading-state">
+        <app-loading
+          variant="skeleton"
+          .lines=${Math.min(6, Math.max(3, this.pageSize))}
+          .label=${this.loadingLabel}
+        ></app-loading>
+      </div>
+    `;
+  }
+
   private get template(): TemplateResult {
     return html`
       <div class="details-container">
@@ -582,16 +587,22 @@ export class EmployeeDetails extends LitElement {
         </div>
 
         <div class="table-view">
-          <employee-table
-            .employees=${this.paginatedEmployees}
-            .searchActive=${this.searchQuery.trim().length > 0}
-            @edit=${this.handleEdit}
-            @delete=${this.handleDelete}
-            @add-employee=${this.handleAddEmployeeBubbled}
-          ></employee-table>
+          ${this.loading
+            ? this.loadingStateTemplate
+            : html`
+                <employee-table
+                  .employees=${this.paginatedEmployees}
+                  .searchActive=${this.searchQuery.trim().length > 0}
+                  @edit=${this.handleEdit}
+                  @delete=${this.handleDelete}
+                  @add-employee=${this.handleAddEmployeeBubbled}
+                ></employee-table>
+              `}
         </div>
 
-        <div class="list-view">${this.listViewTemplate}</div>
+        <div class="list-view">
+          ${this.loading ? this.loadingStateTemplate : this.listViewTemplate}
+        </div>
 
         <div class="pagination-wrapper">
           <pagination-control
@@ -599,6 +610,7 @@ export class EmployeeDetails extends LitElement {
             .totalPages=${this.totalPages}
             .totalItems=${this.filteredEmployees.length}
             .pageSize=${this.pageSize}
+            .loading=${this.loading}
             @page-change=${this.handlePageChange}
             @page-size-change=${this.handlePageSizeChange}
           ></pagination-control>
