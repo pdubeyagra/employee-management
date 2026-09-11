@@ -1,13 +1,60 @@
 import { LitElement, css, html, nothing, unsafeCSS } from "lit";
-import { customElement, property } from "lit/decorators.js";
-import { generateThemeCSSVariables } from "../../theme/colors.js";
+import { customElement, property, state } from "lit/decorators.js";
+import { generateThemeCSSVariables } from "@/theme/colors.js";
 import {
   LAYOUT_CONFIG,
   generateLayoutCSSVariables,
-} from "../../theme/layout.js";
+} from "@/theme/layout.js";
 
 export interface InputChangeDetail {
   value: string;
+  error: string;
+}
+
+export interface InputBlurDetail {
+  value: string;
+  error: string;
+}
+
+export interface FieldRules {
+  label?: string;
+  required?: boolean;
+  maxlength?: number;
+  minlength?: number;
+  type?: string;
+  pattern?: RegExp | null;
+  patternMessage?: string;
+}
+
+export const EMAIL_PATTERN = /^[^\s@]+@[^\s@.]+(?:\.[^\s@.]+)+$/;
+
+const DEFAULT_FIELD_LABEL = "This field";
+
+export function validateFieldValue(value: string, rules: FieldRules): string {
+  const label = rules.label || DEFAULT_FIELD_LABEL;
+  const trimmedValue = value.trim();
+
+  if (!trimmedValue) {
+    return rules.required ? `${label} is required.` : "";
+  }
+
+  if (rules.minlength && trimmedValue.length < rules.minlength) {
+    return `${label} must be at least ${rules.minlength} characters.`;
+  }
+
+  if (rules.maxlength && trimmedValue.length > rules.maxlength) {
+    return `${label} must be ${rules.maxlength} characters or fewer.`;
+  }
+
+  if (rules.type === "email" && !EMAIL_PATTERN.test(trimmedValue)) {
+    return "Please enter a valid email address.";
+  }
+
+  if (rules.pattern && !rules.pattern.test(trimmedValue)) {
+    return rules.patternMessage || `${label} is not in the expected format.`;
+  }
+
+  return "";
 }
 
 @customElement("ui-input")
@@ -36,11 +83,27 @@ export class UiInput extends LitElement {
   @property({ type: Number })
   maxlength = 0;
 
+  @property({ type: Number })
+  minlength = 0;
+
+  @property({ attribute: false })
+  pattern: RegExp | null = null;
+
+  @property()
+  patternMessage = "";
+
   @property({ type: Boolean })
   required = false;
 
   @property({ type: Boolean })
   invalid = false;
+
+  /**
+   * Error produced by this component's own rules. A consumer-supplied `error`
+   * takes precedence, so a form that validates centrally keeps full control.
+   */
+  @state()
+  private selfError = "";
 
   static styles = css`
     :host {
@@ -144,15 +207,43 @@ export class UiInput extends LitElement {
     this.requestUpdate();
   }
 
+  /** The rules this input enforces, assembled from its own properties. */
+  get rules(): FieldRules {
+    return {
+      label: this.label,
+      required: this.required,
+      maxlength: this.maxlength,
+      minlength: this.minlength,
+      type: this.type,
+      pattern: this.pattern,
+      patternMessage: this.patternMessage,
+    };
+  }
+
+  /** Re-runs the basic rules and returns the resulting message. */
+  validate(): string {
+    this.selfError = validateFieldValue(this.value, this.rules);
+
+    return this.selfError;
+  }
+
+  /** The message actually shown: a consumer-supplied error wins. */
+  get validationMessage(): string {
+    return this.error || this.selfError;
+  }
+
   private handleInput(event: Event) {
     const input = event.target as HTMLInputElement;
 
     this.value = input.value;
 
+    const error = this.validate();
+
     this.dispatchEvent(
       new CustomEvent<InputChangeDetail>("input-change", {
         detail: {
           value: input.value,
+          error,
         },
         bubbles: true,
         composed: true,
@@ -161,8 +252,14 @@ export class UiInput extends LitElement {
   }
 
   private handleBlur() {
+    const error = this.validate();
+
     this.dispatchEvent(
-      new CustomEvent("input-blur", {
+      new CustomEvent<InputBlurDetail>("input-blur", {
+        detail: {
+          value: this.value,
+          error,
+        },
         bubbles: true,
         composed: true,
       }),
@@ -170,6 +267,9 @@ export class UiInput extends LitElement {
   }
 
   render() {
+    const message = this.validationMessage;
+    const isInvalid = this.invalid || Boolean(message);
+
     return html`
       <div class="form-group">
         <label>
@@ -187,14 +287,14 @@ export class UiInput extends LitElement {
             inputmode=${this.inputmode || nothing}
             autocomplete=${this.autocomplete || nothing}
             maxlength=${this.maxlength > 0 ? this.maxlength : nothing}
-            class=${this.invalid ? "invalid" : ""}
-            aria-invalid=${this.invalid ? "true" : "false"}
+            class=${isInvalid ? "invalid" : ""}
+            aria-invalid=${isInvalid ? "true" : "false"}
             @input=${this.handleInput}
             @blur=${this.handleBlur}
           />
         </div>
 
-        <div class="error-message" role="alert">${this.error}</div>
+        <div class="error-message" role="alert">${message}</div>
       </div>
     `;
   }

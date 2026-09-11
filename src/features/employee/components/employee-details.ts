@@ -1,19 +1,20 @@
 import { LitElement, css, html, unsafeCSS, type TemplateResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 
-import "./components/employee/employee-table.ts";
-import "./components/shared/confirm-dialog.ts";
-import "./components/shared/pagination-control.ts";
-import "./components/ui/ui-button.ts";
+import "./employee-table.ts";
+import "@/components/shared/confirm-dialog.ts";
+import "@/components/shared/pagination-control.ts";
+import "@/components/ui/ui-button.ts";
 
-import type { Employee } from "./types/employee-types.ts";
-import { generateThemeCSSVariables } from "./theme/colors.js";
-import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "./theme/layout.js";
+import type { Employee } from "../employee-types.ts";
+import type { PageSizeChangeDetail } from "@/components/shared/pagination-control.ts";
+import { generateThemeCSSVariables } from "@/theme/colors.js";
+import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "@/theme/layout.js";
 import {
   generateAvatarClasses,
   getAvatarVariant,
   getInitials,
-} from "./utils/avatar.js";
+} from "@/utils/avatar.js";
 
 @customElement("employee-details")
 export class EmployeeDetails extends LitElement {
@@ -29,7 +30,8 @@ export class EmployeeDetails extends LitElement {
   @state()
   private searchQuery = "";
 
-  private readonly pageSize = 10;
+  @state()
+  private pageSize = 10;
 
   static styles = css`
     :host {
@@ -317,6 +319,18 @@ export class EmployeeDetails extends LitElement {
     this.currentPage = Math.min(Math.max(1, event.detail), this.totalPages);
   }
 
+  private handlePageSizeChange(event: CustomEvent<PageSizeChangeDetail>) {
+    event.stopPropagation();
+
+    this.pageSize = event.detail.pageSize;
+
+    /*
+     * The pager works out which page keeps the current first row in view; clamp
+     * it here because a smaller roster may have fewer pages at the new size.
+     */
+    this.currentPage = Math.min(Math.max(1, event.detail.page), this.totalPages);
+  }
+
   private requestEdit(employee: Employee) {
     this.dispatchEvent(
       new CustomEvent<Employee>("employee-edit", {
@@ -549,6 +563,7 @@ export class EmployeeDetails extends LitElement {
             .totalItems=${this.filteredEmployees.length}
             .pageSize=${this.pageSize}
             @page-change=${this.handlePageChange}
+            @page-size-change=${this.handlePageSizeChange}
           ></pagination-control>
         </div>
 

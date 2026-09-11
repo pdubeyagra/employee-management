@@ -1,13 +1,14 @@
 import { expect } from "chai";
 
-import "../src/employee-details.ts";
-import type { EmployeeDetails } from "../src/employee-details.ts";
-import type { EmployeeTable } from "../src/components/employee/employee-table.ts";
-import type { Employee } from "../src/types/employee-types.ts";
-import type { PaginationControl } from "../src/components/shared/pagination-control.ts";
-import type { ConfirmDialog } from "../src/components/shared/confirm-dialog.ts";
-import type { UiButton } from "../src/components/ui/ui-button.ts";
-import { makeEmployee, makeEmployees } from "./helpers/employees.ts";
+import "@/features/employee/components/employee-details.ts";
+import type { EmployeeDetails } from "@/features/employee/components/employee-details.ts";
+import type { EmployeeTable } from "@/features/employee/components/employee-table.ts";
+import type { Employee } from "@/features/employee/employee-types.ts";
+import type { PaginationControl } from "@/components/shared/pagination-control.ts";
+import type { ConfirmDialog } from "@/components/shared/confirm-dialog.ts";
+import type { UiButton } from "@/components/ui/ui-button.ts";
+import type { UiSelect } from "@/components/ui/ui-select.ts";
+import { makeEmployee, makeEmployees } from "../../helpers/employees.ts";
 import {
   click,
   mount,
@@ -18,7 +19,7 @@ import {
   text,
   typeInto,
   update,
-} from "./helpers/dom.ts";
+} from "../../helpers/dom.ts";
 
 const tableOf = (details: EmployeeDetails) =>
   queryRequired<EmployeeTable>(details, "employee-table");
@@ -263,6 +264,120 @@ describe("<employee-details>", () => {
 
       expect(paginationOf(details).totalPages).to.equal(1);
       expect(paginationOf(details).totalItems).to.equal(0);
+    });
+
+    describe("rows per page", () => {
+      async function setPageSize(
+        details: EmployeeDetails,
+        pageSize: number,
+        page: number,
+      ) {
+        paginationOf(details).dispatchEvent(
+          new CustomEvent("page-size-change", {
+            detail: { pageSize, page },
+            bubbles: true,
+            composed: true,
+          }),
+        );
+
+        await details.updateComplete;
+      }
+
+      it("re-slices the roster at the new size", async () => {
+        const details = await mount<EmployeeDetails>("employee-details", {
+          employees: makeEmployees(25),
+        });
+
+        await setPageSize(details, 5, 1);
+
+        expect(visible(details)).to.have.lengthOf(5);
+        expect(paginationOf(details).pageSize).to.equal(5);
+        expect(paginationOf(details).totalPages).to.equal(5);
+      });
+
+      it("honours the page the pager worked out", async () => {
+        const details = await mount<EmployeeDetails>("employee-details", {
+          employees: makeEmployees(25),
+        });
+
+        // Page 3 of 10 starts at row 21, which is page 5 once rows are 5.
+        await goToPage(details, 3);
+        await setPageSize(details, 5, 5);
+
+        expect(paginationOf(details).currentPage).to.equal(5);
+        expect(visible(details).map((employee) => employee.id)).to.deep.equal([
+          "id-21",
+          "id-22",
+          "id-23",
+          "id-24",
+          "id-25",
+        ]);
+      });
+
+      it("clamps to the last page when the roster no longer reaches", async () => {
+        const details = await mount<EmployeeDetails>("employee-details", {
+          employees: makeEmployees(25),
+        });
+
+        await goToPage(details, 3);
+        await setPageSize(details, 20, 2);
+
+        expect(paginationOf(details).currentPage).to.equal(2);
+
+        await setPageSize(details, 20, 9);
+
+        expect(paginationOf(details).currentPage).to.equal(2);
+      });
+
+      it("shows every employee at the largest size", async () => {
+        const details = await mount<EmployeeDetails>("employee-details", {
+          employees: makeEmployees(20),
+        });
+
+        await setPageSize(details, 20, 1);
+
+        expect(visible(details)).to.have.lengthOf(20);
+        expect(paginationOf(details).totalPages).to.equal(1);
+      });
+
+      it("re-slices when the real dropdown is used", async () => {
+        const details = await mount<EmployeeDetails>("employee-details", {
+          employees: makeEmployees(25),
+        });
+
+        await goToPage(details, 3);
+
+        const pager = paginationOf(details);
+        await pager.updateComplete;
+
+        const sizeSelect = queryRequired<UiSelect>(pager, "ui-select");
+        await sizeSelect.updateComplete;
+
+        const native = queryRequired<HTMLSelectElement>(sizeSelect, "select");
+
+        native.value = "5";
+        native.dispatchEvent(
+          new Event("change", { bubbles: true, composed: true }),
+        );
+
+        await details.updateComplete;
+
+        expect(paginationOf(details).pageSize).to.equal(5);
+        // Row 21 was the first row on page 3; it heads page 5 at this size.
+        expect(paginationOf(details).currentPage).to.equal(5);
+        expect(visible(details)[0]!.id).to.equal("id-21");
+      });
+
+      it("keeps the page-size-change event from escaping to the host app", async () => {
+        const details = await mount<EmployeeDetails>("employee-details", {
+          employees: makeEmployees(25),
+        });
+        const escaped = recordEvents(document.body, "page-size-change");
+
+        await setPageSize(details, 5, 1);
+
+        expect(escaped).to.have.lengthOf(0);
+      });
     });
 
     it("keeps the page-change event from escaping to the host app", async () => {

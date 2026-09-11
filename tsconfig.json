@@ -9,6 +9,11 @@
     "allowArbitraryExtensions": true,
     "skipLibCheck": true,
 
+    /* "@/..." resolves from src/. Mirrored by resolve.alias in vite.config.ts. */
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,

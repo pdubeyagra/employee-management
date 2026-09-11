@@ -1,16 +1,16 @@
 import { LitElement, css, html, unsafeCSS, type TemplateResult } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { generateThemeCSSVariables } from "../../theme/colors.js";
+import { generateThemeCSSVariables } from "@/theme/colors.js";
 import {
   LAYOUT_CONFIG,
   generateLayoutCSSVariables,
-} from "../../theme/layout.js";
+} from "@/theme/layout.js";
 import {
   generateAvatarClasses,
   getAvatarVariant,
   getInitials,
-} from "../../utils/avatar.js";
-import type { Employee } from "../../types/employee-types.js";
+} from "@/utils/avatar.js";
+import type { Employee } from "../employee-types.js";
 
 @customElement("employee-table")
 export class EmployeeTable extends LitElement {

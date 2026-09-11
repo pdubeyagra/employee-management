@@ -1,7 +1,7 @@
 import { expect } from "chai";
 
-import "../../src/components/ui/ui-dialog.ts";
-import type { UiDialog } from "../../src/components/ui/ui-dialog.ts";
+import "@/components/ui/ui-dialog.ts";
+import type { UiDialog } from "@/components/ui/ui-dialog.ts";
 import {
   click,
   mount,

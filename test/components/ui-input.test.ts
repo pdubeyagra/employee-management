@@ -1,7 +1,10 @@
 import { expect } from "chai";
 
-import "../../src/components/ui/ui-input.ts";
-import type { UiInput } from "../../src/components/ui/ui-input.ts";
+import "@/components/ui/ui-input.ts";
+import {
+  validateFieldValue,
+  type UiInput,
+} from "@/components/ui/ui-input.ts";
 import {
   mount,
   query,
@@ -136,5 +139,154 @@ describe("<ui-input>", () => {
 
     expect(input.getAttribute("aria-invalid")).to.equal("true");
     expect(input.className).to.contain("invalid");
+  });
+});
+
+describe("validateFieldValue", () => {
+  it("passes anything when no rules are set", () => {
+    expect(validateFieldValue("", {})).to.equal("");
+    expect(validateFieldValue("anything at all", {})).to.equal("");
+  });
+
+  it("reports a missing required value using the field label", () => {
+    expect(validateFieldValue("", { label: "Name", required: true })).to.equal(
+      "Name is required.",
+    );
+  });
+
+  it("treats whitespace as missing", () => {
+    expect(
+      validateFieldValue("  \t\n ", { label: "Name", required: true }),
+    ).to.equal("Name is required.");
+  });
+
+  it("falls back to a generic label", () => {
+    expect(validateFieldValue("", { required: true })).to.equal(
+      "This field is required.",
+    );
+  });
+
+  it("measures the trimmed value against maxlength", () => {
+    const rules = { label: "Name", maxlength: 4 };
+
+    expect(validateFieldValue("abcd", rules)).to.equal("");
+    expect(validateFieldValue("  abcd  ", rules)).to.equal("");
+    expect(validateFieldValue("abcde", rules)).to.equal(
+      "Name must be 4 characters or fewer.",
+    );
+  });
+
+  it("measures the trimmed value against minlength", () => {
+    const rules = { label: "Code", minlength: 3 };
+
+    expect(validateFieldValue("abc", rules)).to.equal("");
+    expect(validateFieldValue("ab", rules)).to.equal(
+      "Code must be at least 3 characters.",
+    );
+  });
+
+  it("checks email shape only for email fields", () => {
+    expect(validateFieldValue("nope", { label: "Email", type: "email" })).to
+      .equal("Please enter a valid email address.");
+    expect(
+      validateFieldValue("ada@example.com", { label: "Email", type: "email" }),
+    ).to.equal("");
+    expect(validateFieldValue("nope", { label: "Name", type: "text" })).to.equal(
+      "",
+    );
+  });
+
+  it("applies a custom pattern with its own message", () => {
+    const rules = {
+      label: "Code",
+      pattern: /^[A-Z]{3}$/,
+      patternMessage: "Use three capital letters.",
+    };
+
+    expect(validateFieldValue("ABC", rules)).to.equal("");
+    expect(validateFieldValue("abc", rules)).to.equal(
+      "Use three capital letters.",
+    );
+  });
+
+  it("skips every other rule once an optional field is left blank", () => {
+    expect(
+      validateFieldValue("", { label: "Email", type: "email", minlength: 5 }),
+    ).to.equal("");
+  });
+});
+
+describe("<ui-input> self-validation", () => {
+  it("validates on blur from its own properties", async () => {
+    const { host, input } = await mountInput({ label: "Name", required: true });
+
+    input.dispatchEvent(new FocusEvent("blur"));
+    await host.updateComplete;
+
+    expect(text(query(host, ".error-message"))).to.equal("Name is required.");
+    expect(input.getAttribute("aria-invalid")).to.equal("true");
+  });
+
+  it("clears its own error as soon as the value becomes valid", async () => {
+    const { host, input } = await mountInput({ label: "Name", required: true });
+
+    input.dispatchEvent(new FocusEvent("blur"));
+    await host.updateComplete;
+
+    typeInto(input, "Ada");
+    await host.updateComplete;
+
+    expect(text(query(host, ".error-message"))).to.equal("");
+    expect(input.getAttribute("aria-invalid")).to.equal("false");
+  });
+
+  it("reports the error alongside the value on both events", async () => {
+    const { host, input } = await mountInput({
+      label: "Email",
+      type: "email",
+      required: true,
+    });
+
+    const changes = recordEvents<{ value: string; error: string }>(
+      host,
+      "input-change",
+    );
+    const blurs = recordEvents<{ value: string; error: string }>(
+      host,
+      "input-blur",
+    );
+
+    typeInto(input, "nope");
+    input.dispatchEvent(new FocusEvent("blur"));
+
+    expect(changes[0]!.detail).to.deep.equal({
+      value: "nope",
+      error: "Please enter a valid email address.",
+    });
+    expect(blurs[0]!.detail).to.deep.equal({
+      value: "nope",
+      error: "Please enter a valid email address.",
+    });
+  });
+
+  it("lets a consumer-supplied error win over its own", async () => {
+    const { host, input } = await mountInput({
+      label: "Email",
+      required: true,
+      error: "That address is already taken.",
+    });
+
+    input.dispatchEvent(new FocusEvent("blur"));
+    await host.updateComplete;
+
+    expect(text(query(host, ".error-message"))).to.equal(
+      "That address is already taken.",
+    );
+  });
+
+  it("stays silent for an untouched field", async () => {
+    const { host } = await mountInput({ label: "Name", required: true });
+
+    expect(text(query(host, ".error-message"))).to.equal("");
   });
 });

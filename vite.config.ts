@@ -1,3 +1,5 @@
+import { fileURLToPath } from "node:url";
+
 import { defineConfig, type Plugin } from "vite";
 
 function contentSecurityPolicy(isDev: boolean): Plugin {
@@ -32,6 +34,12 @@ function contentSecurityPolicy(isDev: boolean): Plugin {
 
 export default defineConfig(({ command }) => ({
   plugins: [contentSecurityPolicy(command === "serve")],
+  resolve: {
+    alias: {
+      // Mirrors the "@/*" path in tsconfig.json. Keep the two in step.
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
+    },
+  },
   build: {
     modulePreload: { polyfill: false },
   },

@@ -1,13 +1,18 @@
 import { expect } from "chai";
 
-import "../src/employee-form.ts";
-import type { EmployeeForm } from "../src/employee-form.ts";
-import type { UiInput } from "../src/components/ui/ui-input.ts";
-import type { UiButton } from "../src/components/ui/ui-button.ts";
-import type { AppToast } from "../src/components/shared/toast.ts";
-import type { Employee, NewEmployee } from "../src/types/employee-types.ts";
-import { FIELD_MAX_LENGTHS } from "../src/utils/employee-validation.ts";
-import { makeEmployee } from "./helpers/employees.ts";
+import "@/features/employee/components/employee-form.ts";
+import type { EmployeeForm } from "@/features/employee/components/employee-form.ts";
+import type { UiInput } from "@/components/ui/ui-input.ts";
+import type { UiSelect } from "@/components/ui/ui-select.ts";
+import type { UiButton } from "@/components/ui/ui-button.ts";
+import type { AppToast } from "@/components/shared/toast.ts";
+import type { Employee, NewEmployee } from "@/features/employee/employee-types.ts";
+import { FIELD_MAX_LENGTHS } from "@/features/employee/employee-validation.ts";
+import {
+  DEPARTMENTS,
+  DESIGNATIONS,
+} from "@/features/employee/employee-options.ts";
+import { makeEmployee } from "../../helpers/employees.ts";
 import {
   click,
   mount,
@@ -18,34 +23,83 @@ import {
   text,
   typeInto,
   update,
-} from "./helpers/dom.ts";
+} from "../../helpers/dom.ts";
 
 const FIELD_ORDER = ["name", "department", "designation", "email"] as const;
 
 type FieldName = (typeof FIELD_ORDER)[number];
 
-function fields(form: EmployeeForm): Record<FieldName, UiInput> {
-  const inputs = queryAll<UiInput>(form, "ui-input");
-  const byName = {} as Record<FieldName, UiInput>;
+/** Department and designation are dropdowns; the rest are text inputs. */
+const SELECT_FIELDS = ["department", "designation"] as const;
 
-  FIELD_ORDER.forEach((field, index) => {
-    byName[field] = inputs[index]!;
-  });
+const FIELD_LABELS: Record<FieldName, string> = {
+  name: "Name",
+  department: "Department",
+  designation: "Designation",
+  email: "Email",
+};
 
-  return byName;
+const isSelectField = (field: FieldName) =>
+  (SELECT_FIELDS as readonly string[]).includes(field);
+
+/*
+ * The public surface a test reads off a field, whichever element backs it.
+ * A plain `UiInput & UiSelect` collapses to `never`, because both classes
+ * declare a private `selfError`.
+ */
+type FormField = Element &
+  Pick<
+    UiInput,
+    | "label"
+    | "value"
+    | "error"
+    | "invalid"
+    | "required"
+    | "maxlength"
+    | "type"
+    | "inputmode"
+    | "autocomplete"
+  > &
+  Pick<UiSelect, "options">;
+
+function fieldOf(form: EmployeeForm, field: FieldName): FormField {
+  const tag = isSelectField(field) ? "ui-select" : "ui-input";
+
+  return queryRequired<FormField>(
+    form,
+    `${tag}[label="${FIELD_LABELS[field]}"]`,
+  );
 }
 
-function fill(form: EmployeeForm, field: FieldName, value: string) {
-  typeInto(
-    queryRequired<HTMLInputElement>(fields(form)[field], "input"),
-    value,
+const fields = (form: EmployeeForm) =>
+  Object.fromEntries(
+    FIELD_ORDER.map((field) => [field, fieldOf(form, field)]),
+  ) as Record<FieldName, FormField>;
+
+const controlOf = (form: EmployeeForm, field: FieldName) =>
+  queryRequired<HTMLElement>(
+    fieldOf(form, field),
+    isSelectField(field) ? "select" : "input",
   );
+
+function fill(form: EmployeeForm, field: FieldName, value: string) {
+  const control = controlOf(form, field);
+
+  if (isSelectField(field)) {
+    (control as HTMLSelectElement).value = value;
+
+    control.dispatchEvent(
+      new Event("change", { bubbles: true, composed: true }),
+    );
+
+    return;
+  }
+
+  typeInto(control as HTMLInputElement, value);
 }
 
 function blur(form: EmployeeForm, field: FieldName) {
-  queryRequired(fields(form)[field], "input").dispatchEvent(
-    new FocusEvent("blur"),
-  );
+  controlOf(form, field).dispatchEvent(new FocusEvent("blur"));
 }
 
 async function fillAll(
@@ -89,15 +143,40 @@ describe("<employee-form>", () => {
   describe("rendering", () => {
     it("renders the four required fields with their labels", async () => {
       const form = await mount<EmployeeForm>("employee-form");
-      const inputs = queryAll<UiInput>(form, "ui-input");
+      const controls = queryAll<UiInput | UiSelect>(
+        form,
+        "ui-input, ui-select",
+      );
 
-      expect(inputs.map((input) => input.label)).to.deep.equal([
+      expect(controls.map((control) => control.label)).to.deep.equal([
         "Name",
         "Department",
         "Designation",
         "Email",
       ]);
-      expect(inputs.every((input) => input.required)).to.equal(true);
+      expect(controls.every((control) => control.required)).to.equal(true);
+    });
+
+    it("uses dropdowns for department and designation, text for the rest", async () => {
+      const form = await mount<EmployeeForm>("employee-form");
+
+      expect(
+        queryAll<UiSelect>(form, "ui-select").map((select) => select.label),
+      ).to.deep.equal(["Department", "Designation"]);
+      expect(
+        queryAll<UiInput>(form, "ui-input").map((input) => input.label),
+      ).to.deep.equal(["Name", "Email"]);
+    });
+
+    it("offers the department and designation lists", async () => {
+      const form = await mount<EmployeeForm>("employee-form");
+
+      expect(
+        fieldOf(form, "department").options.map((option) => option.value),
+      ).to.deep.equal([...DEPARTMENTS]);
+      expect(
+        fieldOf(form, "designation").options.map((option) => option.value),
+      ).to.deep.equal([...DESIGNATIONS]);
     });
 
     it("configures the email field for email entry", async () => {
@@ -113,10 +192,11 @@ describe("<employee-form>", () => {
       expect(fields(form).email.autocomplete).to.equal("off");
     });
 
-    it("caps every field at the length the validator enforces", async () => {
+    it("caps every typed field at the length the validator enforces", async () => {
       const form = await mount<EmployeeForm>("employee-form");
+      const typedFields = FIELD_ORDER.filter((field) => !isSelectField(field));
 
-      for (const field of FIELD_ORDER) {
+      for (const field of typedFields) {
         expect(fields(form)[field].maxlength, field).to.equal(
           FIELD_MAX_LENGTHS[field],
         );
@@ -256,8 +336,8 @@ describe("<employee-form>", () => {
 
       await fillAll(form, {
         name: "  Ada Lovelace  ",
-        department: " Engineering ",
-        designation: " Principal Engineer ",
+        department: "Engineering",
+        designation: "Principal Engineer",
         email: "  ada@example.com ",
       });
 
@@ -329,13 +409,67 @@ describe("<employee-form>", () => {
       expect(valueOf(form, "email")).to.equal("ada@example.com");
     });
 
+    describe("a stored value the dropdowns no longer offer", () => {
+      const legacy = makeEmployee({
+        id: "employee-legacy",
+        name: "Grace Hopper",
+        department: "Skunkworks",
+        designation: "Rear Admiral",
+        email: "grace@example.com",
+      });
+
+      it("stays selected instead of falling back to the placeholder", async () => {
+        const form = await mount<EmployeeForm>("employee-form", {
+          employeeToEdit: legacy,
+        });
+
+        expect(valueOf(form, "department")).to.equal("Skunkworks");
+        expect(valueOf(form, "designation")).to.equal("Rear Admiral");
+        expect(
+          queryRequired<HTMLSelectElement>(
+            fieldOf(form, "department"),
+            "select",
+          ).value,
+        ).to.equal("Skunkworks");
+      });
+
+      it("is offered alongside the standard list", async () => {
+        const form = await mount<EmployeeForm>("employee-form", {
+          employeeToEdit: legacy,
+        });
+
+        const values = fieldOf(form, "department").options.map(
+          (option) => option.value,
+        );
+
+        expect(values).to.deep.equal([...DEPARTMENTS, "Skunkworks"]);
+      });
+
+      it("survives an edit to an unrelated field", async () => {
+        const form = await mount<EmployeeForm>("employee-form", {
+          employeeToEdit: legacy,
+        });
+        const updated = recordEvents<Employee>(form, "employee-updated");
+
+        await fillAll(form, { name: "Grace B. Hopper" });
+        pressButton(submitButton(form));
+        await form.updateComplete;
+
+        expect(updated).to.have.lengthOf(1);
+        expect(updated[0]!.detail).to.deep.equal({
+          ...legacy,
+          name: "Grace B. Hopper",
+        });
+      });
+    });
+
     it("emits employee-updated keeping the original id", async () => {
       const form = await mount<EmployeeForm>("employee-form", {
         employeeToEdit: existing,
       });
       const updated = recordEvents<Employee>(form, "employee-updated");
 
-      await fillAll(form, { designation: "  VP Engineering  " });
+      await fillAll(form, { designation: "VP Engineering" });
       pressButton(submitButton(form));
       await form.updateComplete;
 

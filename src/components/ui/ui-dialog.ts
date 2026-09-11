@@ -1,10 +1,10 @@
 import { LitElement, css, html, nothing, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { generateThemeCSSVariables } from "../../theme/colors.js";
+import { generateThemeCSSVariables } from "@/theme/colors.js";
 import {
   LAYOUT_CONFIG,
   generateLayoutCSSVariables,
-} from "../../theme/layout.js";
+} from "@/theme/layout.js";
 
 export type DialogRole = "dialog" | "alertdialog";
 

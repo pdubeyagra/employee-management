@@ -127,6 +127,7 @@ export const generateLayoutCSSVariables = (): string => {
     --z-hide: ${LAYOUT_CONFIG.zIndex.hide};
     --z-base: ${LAYOUT_CONFIG.zIndex.base};
     --z-dropdown: ${LAYOUT_CONFIG.zIndex.dropdown};
+    --z-sticky: ${LAYOUT_CONFIG.zIndex.sticky};
     --z-modal: ${LAYOUT_CONFIG.zIndex.modal};
   `;
 };

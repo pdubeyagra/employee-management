@@ -3,11 +3,11 @@ import { expect } from "chai";
 import {
   THEME_COLORS,
   generateThemeCSSVariables,
-} from "../../src/theme/colors.ts";
+} from "@/theme/colors.ts";
 import {
   LAYOUT_CONFIG,
   generateLayoutCSSVariables,
-} from "../../src/theme/layout.ts";
+} from "@/theme/layout.ts";
 
 function parseCustomProperties(css: string): Record<string, string> {
   const properties: Record<string, string> = {};

@@ -1,7 +1,7 @@
 import { expect } from "chai";
 
-import "../../src/components/ui/ui-button.ts";
-import type { UiButton } from "../../src/components/ui/ui-button.ts";
+import "@/components/ui/ui-button.ts";
+import type { UiButton } from "@/components/ui/ui-button.ts";
 import {
   click,
   mount,

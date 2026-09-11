@@ -1,7 +1,7 @@
 import { expect } from "chai";
 
-import "../../src/components/shared/toast.ts";
-import type { AppToast } from "../../src/components/shared/toast.ts";
+import "@/components/shared/toast.ts";
+import type { AppToast } from "@/components/shared/toast.ts";
 import {
   click,
   mount,

@@ -1,16 +1,23 @@
 import { LitElement, css, html, unsafeCSS, type TemplateResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 
-import "./components/ui/ui-button.ts";
-import "./components/ui/ui-input.ts";
-import "./components/shared/toast.ts";
+import "@/components/ui/ui-button.ts";
+import "@/components/ui/ui-input.ts";
+import "@/components/ui/ui-select.ts";
+import "@/components/shared/toast.ts";
 
 import {
   FIELD_MAX_LENGTHS,
   validateEmployeeField,
   validateEmployeeForm,
   isEmployeeFormValid,
-} from "./utils/employee-validation.ts";
+} from "../employee-validation.ts";
+
+import {
+  DEPARTMENT_OPTIONS,
+  DESIGNATION_OPTIONS,
+  withCurrentValue,
+} from "../employee-options.ts";
 
 import type {
   Employee,
@@ -18,11 +25,12 @@ import type {
   EmployeeField,
   EmployeeFormData,
   NewEmployee,
-} from "./types/employee-types.ts";
-import type { InputChangeDetail } from "./components/ui/ui-input.ts";
-import type { ToastHost, ToastVariant } from "./components/shared/toast.ts";
-import { generateThemeCSSVariables } from "./theme/colors.js";
-import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "./theme/layout.js";
+} from "../employee-types.ts";
+import type { InputChangeDetail } from "@/components/ui/ui-input.ts";
+import type { SelectChangeDetail } from "@/components/ui/ui-select.ts";
+import type { ToastHost, ToastVariant } from "@/components/shared/toast.ts";
+import { generateThemeCSSVariables } from "@/theme/colors.js";
+import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "@/theme/layout.js";
 
 @customElement("employee-form")
 export class EmployeeForm extends LitElement {
@@ -82,6 +90,20 @@ export class EmployeeForm extends LitElement {
       align-items: center;
       gap: var(--spacing-md);
       margin-bottom: var(--spacing-lg);
+    }
+
+    .form-header-close {
+      margin-left: auto;
+    }
+
+    .form-header-close ui-button {
+      min-width: 0;
+    }
+
+    .close-icon {
+      display: block;
+      width: 16px;
+      height: 16px;
     }
 
     .form-header h2 {
@@ -186,7 +208,7 @@ export class EmployeeForm extends LitElement {
 
   private handleInput(
     field: EmployeeField,
-    event: CustomEvent<InputChangeDetail>,
+    event: CustomEvent<InputChangeDetail | SelectChangeDetail>,
   ) {
     const value = event.detail.value;
 
@@ -275,7 +297,7 @@ export class EmployeeForm extends LitElement {
     form.requestSubmit();
   }
 
-  private handleClear() {
+  private resetFormState() {
     this.formData = {
       name: "",
       department: "",
@@ -289,10 +311,26 @@ export class EmployeeForm extends LitElement {
       designation: "",
       email: "",
     };
+  }
+
+  private handleClear() {
+    this.resetFormState();
 
     if (this.employeeToEdit) {
       this.dispatchEvent(new CustomEvent("edit-cancelled"));
     }
+  }
+
+  /**
+   * Dismisses the form entirely. Unlike `handleClear`, this discards any
+   * in-progress input in add mode too, so reopening always starts blank.
+   */
+  private handleClose(event: CustomEvent) {
+    event.stopPropagation();
+
+    this.resetFormState();
+
+    this.dispatchEvent(new CustomEvent("form-close"));
   }
 
   private showToast(message: string, variant: ToastVariant) {
@@ -308,6 +346,33 @@ export class EmployeeForm extends LitElement {
       <div class="form-header">
         <h2>${isEditing ? "Edit Employee" : "Employee Form"}</h2>
         ${isEditing ? html`<span class="edit-badge">Editing</span>` : ""}
+
+        <div class="form-header-close">
+          <ui-button
+            variant="ghost"
+            size="small"
+            shape="rounded"
+            type="button"
+            icon-only
+            label="Close form"
+            title="Close form"
+            @button-click=${this.handleClose}
+          >
+            <svg
+              class="close-icon"
+              slot="icon-only"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+          </ui-button>
+        </div>
       </div>
     `;
   }
@@ -399,35 +464,41 @@ export class EmployeeForm extends LitElement {
               ${this.renderFieldIcon("name")}
             </ui-input>
 
-            <ui-input
+            <ui-select
               label="Department"
-              .maxlength=${FIELD_MAX_LENGTHS.department}
-              placeholder="e.g. Engineering"
+              placeholder="Select a department"
+              .options=${withCurrentValue(
+                DEPARTMENT_OPTIONS,
+                this.formData.department,
+              )}
               .value=${this.formData.department}
               .error=${this.errors.department}
               .invalid=${Boolean(this.errors.department)}
               required
-              @input-change=${(event: CustomEvent<InputChangeDetail>) =>
+              @select-change=${(event: CustomEvent<SelectChangeDetail>) =>
                 this.handleInput("department", event)}
-              @input-blur=${() => this.handleBlur("department")}
+              @select-blur=${() => this.handleBlur("department")}
             >
               ${this.renderFieldIcon("department")}
-            </ui-input>
+            </ui-select>
 
-            <ui-input
+            <ui-select
               label="Designation"
-              .maxlength=${FIELD_MAX_LENGTHS.designation}
-              placeholder="e.g. Software Engineer"
+              placeholder="Select a designation"
+              .options=${withCurrentValue(
+                DESIGNATION_OPTIONS,
+                this.formData.designation,
+              )}
               .value=${this.formData.designation}
               .error=${this.errors.designation}
               .invalid=${Boolean(this.errors.designation)}
               required
-              @input-change=${(event: CustomEvent<InputChangeDetail>) =>
+              @select-change=${(event: CustomEvent<SelectChangeDetail>) =>
                 this.handleInput("designation", event)}
-              @input-blur=${() => this.handleBlur("designation")}
+              @select-blur=${() => this.handleBlur("designation")}
             >
               ${this.renderFieldIcon("designation")}
-            </ui-input>
+            </ui-select>
 
             <ui-input
               label="Email"

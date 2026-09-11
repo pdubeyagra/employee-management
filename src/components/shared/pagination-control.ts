@@ -1,22 +1,46 @@
-import { LitElement, css, html, unsafeCSS } from "lit";
+import { LitElement, css, html, nothing, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { generateThemeCSSVariables } from "../../theme/colors.js";
-import {
-  LAYOUT_CONFIG,
-  generateLayoutCSSVariables,
-} from "../../theme/layout.js";
+
+import "@/components/ui/ui-select.ts";
+
+import { generateThemeCSSVariables } from "@/theme/colors.js";
+import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "@/theme/layout.js";
+import type {
+  SelectChangeDetail,
+  SelectOption,
+} from "@/components/ui/ui-select.ts";
 
 export type PaginationPage = number | "ellipsis";
 
 export type PaginationDirection = "previous" | "next";
 
+export interface PageSizeChangeDetail {
+  pageSize: number;
+  /** The page that keeps the current first item in view at the new size. */
+  page: number;
+}
+
+export const DEFAULT_PAGE_SIZE_OPTIONS = [1, 5, 10, 20];
+
+/**
+ * Presentational pager. It owns no data, so it drives client-side and
+ * server-side pagination the same way:
+ *
+ * - client: the parent slices its own array on `page-change`/`page-size-change`
+ * - server: the parent refetches with the new page/size and passes back the
+ *   row count as `totalItems`; `loading` blocks input while that is in flight
+ *
+ * `totalPages` only needs to be set when the source reports pages rather than a
+ * row count — otherwise it is derived from `totalItems` and `pageSize`.
+ */
 @customElement("pagination-control")
 export class PaginationControl extends LitElement {
   @property({ type: Number })
   currentPage = 1;
 
+  /** Leave at 0 to derive from `totalItems` and `pageSize`. */
   @property({ type: Number })
-  totalPages = 1;
+  totalPages = 0;
 
   @property({ type: Number })
   totalItems = 0;
@@ -24,11 +48,21 @@ export class PaginationControl extends LitElement {
   @property({ type: Number })
   pageSize = 10;
 
+  @property({ attribute: false })
+  pageSizeOptions: number[] = DEFAULT_PAGE_SIZE_OPTIONS;
+
   @property({ type: Boolean })
   showItemCount = true;
 
   @property({ type: Boolean })
   showFirstLast = true;
+
+  @property({ type: Boolean })
+  showPageSize = true;
+
+  /** Blocks every control while the parent is fetching a page. */
+  @property({ type: Boolean })
+  loading = false;
 
   static styles = css`
     :host {
@@ -61,6 +95,15 @@ export class PaginationControl extends LitElement {
       padding: var(--spacing-md) var(--spacing-sm);
     }
 
+    .summary {
+      display: flex;
+      align-items: center;
+      flex: 0 1 auto;
+      flex-wrap: wrap;
+      gap: clamp(var(--spacing-sm), 2vw, var(--spacing-lg));
+      min-width: 0;
+    }
+
     .item-count {
       flex: 0 1 auto;
 
@@ -69,6 +112,20 @@ export class PaginationControl extends LitElement {
       font-size: clamp(var(--font-size-xs), 1.5vw, var(--font-size-sm));
       line-height: var(--line-height-relaxed);
 
+      white-space: nowrap;
+    }
+
+    .page-size {
+      display: flex;
+      align-items: center;
+      flex: 0 0 auto;
+      gap: var(--spacing-sm);
+    }
+
+    .page-size-label {
+      color: var(--color-text-tertiary);
+      font-size: clamp(var(--font-size-xs), 1.5vw, var(--font-size-sm));
+      line-height: var(--line-height-relaxed);
       white-space: nowrap;
     }
 
@@ -167,10 +224,15 @@ export class PaginationControl extends LitElement {
         justify-content: center;
       }
 
+      .summary {
+        width: 100%;
+        justify-content: center;
+        order: 1;
+      }
+
       .item-count {
         width: 100%;
         text-align: center;
-        order: 1;
       }
 
       .controls {
@@ -215,15 +277,37 @@ export class PaginationControl extends LitElement {
     }
   `;
 
+  /**
+   * Pages reported by the source, or worked out from the row count when it
+   * reports one instead.
+   */
+  get resolvedTotalPages(): number {
+    if (this.totalPages > 0) {
+      return this.totalPages;
+    }
+
+    const size = Math.max(1, this.pageSize);
+
+    return Math.max(1, Math.ceil(Math.max(0, this.totalItems) / size));
+  }
+
   private get safeCurrentPage() {
-    return Math.min(
-      Math.max(1, this.currentPage),
-      Math.max(1, this.totalPages),
-    );
+    return Math.min(Math.max(1, this.currentPage), this.resolvedTotalPages);
+  }
+
+  private get pageSizeSelectOptions(): SelectOption[] {
+    const sizes = this.pageSizeOptions.includes(this.pageSize)
+      ? this.pageSizeOptions
+      : [...this.pageSizeOptions, this.pageSize].sort((a, b) => a - b);
+
+    return sizes.map((size) => ({
+      value: String(size),
+      label: String(size),
+    }));
   }
 
   private get pages() {
-    const total = Math.max(1, this.totalPages);
+    const total = this.resolvedTotalPages;
     const current = this.safeCurrentPage;
 
     /*
@@ -287,7 +371,11 @@ export class PaginationControl extends LitElement {
   }
 
   private changePage(page: number) {
-    const nextPage = Math.min(Math.max(1, page), Math.max(1, this.totalPages));
+    if (this.loading) {
+      return;
+    }
+
+    const nextPage = Math.min(Math.max(1, page), this.resolvedTotalPages);
 
     if (nextPage === this.safeCurrentPage) {
       return;
@@ -296,6 +384,34 @@ export class PaginationControl extends LitElement {
     this.dispatchEvent(
       new CustomEvent<number>("page-change", {
         detail: nextPage,
+        bubbles: true,
+        composed: true,
+      }),
+    );
+  }
+
+  private handlePageSizeChange(event: CustomEvent<SelectChangeDetail>) {
+    event.stopPropagation();
+
+    const nextSize = Number(event.detail.value);
+
+    if (!Number.isFinite(nextSize) || nextSize < 1 || nextSize === this.pageSize) {
+      return;
+    }
+
+    /*
+     * Keep the first row currently on screen in view rather than snapping back
+     * to page one — going 10 -> 20 while on page 3 should land on page 2.
+     */
+    const firstItemIndex = (this.safeCurrentPage - 1) * this.pageSize;
+    const nextPage = Math.floor(firstItemIndex / nextSize) + 1;
+
+    this.dispatchEvent(
+      new CustomEvent<PageSizeChangeDetail>("page-size-change", {
+        detail: {
+          pageSize: nextSize,
+          page: nextPage,
+        },
         bubbles: true,
         composed: true,
       }),
@@ -350,9 +466,34 @@ export class PaginationControl extends LitElement {
         `;
   }
 
+  private get pageSizeTemplate() {
+    if (!this.showPageSize) {
+      return nothing;
+    }
+
+    return html`
+      <div class="page-size">
+        <!--
+          The select carries the same text as its aria-label; aria-labelledby
+          cannot reach into ui-select's shadow root, so this copy is decorative.
+        -->
+        <span class="page-size-label" aria-hidden="true">Rows per page</span>
+
+        <ui-select
+          compact
+          label="Rows per page"
+          .options=${this.pageSizeSelectOptions}
+          .value=${String(this.pageSize)}
+          ?disabled=${this.loading}
+          @select-change=${this.handlePageSizeChange}
+        ></ui-select>
+      </div>
+    `;
+  }
+
   render() {
     const current = this.safeCurrentPage;
-    const total = Math.max(1, this.totalPages);
+    const total = this.resolvedTotalPages;
 
     const startItem =
       this.totalItems === 0 ? 0 : (current - 1) * this.pageSize + 1;
@@ -362,17 +503,27 @@ export class PaginationControl extends LitElement {
         ? 0
         : Math.min(current * this.pageSize, this.totalItems);
 
+    const atStart = current === 1 || this.loading;
+    const atEnd = current === total || this.loading;
+
     return html`
-      <nav class="pagination" aria-label="Employee table pagination">
-        ${this.showItemCount
-          ? html`
-              <div class="item-count">
-                ${this.totalItems === 0
-                  ? "No employees"
-                  : `Showing ${startItem}-${endItem} of ${this.totalItems}`}
-              </div>
-            `
-          : html`<div></div>`}
+      <nav
+        class="pagination"
+        aria-label="Employee table pagination"
+        aria-busy=${this.loading ? "true" : "false"}
+      >
+        <div class="summary">
+          ${this.showItemCount
+            ? html`
+                <div class="item-count">
+                  ${this.totalItems === 0
+                    ? "No employees"
+                    : `Showing ${startItem}-${endItem} of ${this.totalItems}`}
+                </div>
+              `
+            : nothing}
+          ${this.pageSizeTemplate}
+        </div>
 
         <div class="controls">
           ${this.showFirstLast
@@ -381,7 +532,7 @@ export class PaginationControl extends LitElement {
                   type="button"
                   class="first-last"
                   @click=${this.firstPage}
-                  ?disabled=${current === 1}
+                  ?disabled=${atStart}
                   aria-label="First page"
                 >
                   «
@@ -392,7 +543,7 @@ export class PaginationControl extends LitElement {
           <button
             type="button"
             @click=${this.previousPage}
-            ?disabled=${current === 1}
+            ?disabled=${atStart}
             aria-label="Previous page"
           >
             ${this.renderArrow("previous")}
@@ -408,6 +559,7 @@ export class PaginationControl extends LitElement {
                       type="button"
                       class="page-button ${page === current ? "active" : ""}"
                       @click=${() => this.changePage(page)}
+                      ?disabled=${this.loading}
                       aria-current=${page === current ? "page" : "false"}
                       aria-label="Page ${page}"
                     >
@@ -428,7 +580,7 @@ export class PaginationControl extends LitElement {
           <button
             type="button"
             @click=${this.nextPage}
-            ?disabled=${current === total}
+            ?disabled=${atEnd}
             aria-label="Next page"
           >
             ${this.renderArrow("next")}
@@ -440,7 +592,7 @@ export class PaginationControl extends LitElement {
                   type="button"
                   class="first-last"
                   @click=${this.lastPage}
-                  ?disabled=${current === total}
+                  ?disabled=${atEnd}
                   aria-label="Last page"
                 >
                   »

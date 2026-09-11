@@ -4,11 +4,11 @@ import { customElement, property } from "lit/decorators.js";
 import "../ui/ui-button.js";
 import "../ui/ui-dialog.js";
 
-import { generateThemeCSSVariables } from "../../theme/colors.js";
+import { generateThemeCSSVariables } from "@/theme/colors.js";
 import {
   LAYOUT_CONFIG,
   generateLayoutCSSVariables,
-} from "../../theme/layout.js";
+} from "@/theme/layout.js";
 import type { ButtonVariant } from "../ui/ui-button.js";
 import type { DialogSize } from "../ui/ui-dialog.js";
 

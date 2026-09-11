@@ -1,10 +1,10 @@
-import { LitElement, css, html, unsafeCSS } from "lit";
+import { LitElement, css, html, nothing, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { generateThemeCSSVariables } from "../../theme/colors.js";
+import { generateThemeCSSVariables } from "@/theme/colors.js";
 import {
   LAYOUT_CONFIG,
   generateLayoutCSSVariables,
-} from "../../theme/layout.js";
+} from "@/theme/layout.js";
 
 export type ButtonVariant =
   | "primary"
@@ -47,6 +47,9 @@ export class UiButton extends LitElement {
 
   @property({ type: String })
   type: ButtonType = "button";
+
+  @property({ type: String })
+  label = "";
 
   static styles = css`
     :host {
@@ -369,6 +372,7 @@ export class UiButton extends LitElement {
         type=${this.type}
         ?disabled=${this.disabled || this.loading}
         aria-disabled=${this.disabled || this.loading}
+        aria-label=${this.label || nothing}
         @click=${this.handleClick}
       >
         ${this.loading

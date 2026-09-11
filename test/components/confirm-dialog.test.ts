@@ -1,9 +1,9 @@
 import { expect } from "chai";
 
-import "../../src/components/shared/confirm-dialog.ts";
-import type { ConfirmDialog } from "../../src/components/shared/confirm-dialog.ts";
-import type { UiButton } from "../../src/components/ui/ui-button.ts";
-import type { UiDialog } from "../../src/components/ui/ui-dialog.ts";
+import "@/components/shared/confirm-dialog.ts";
+import type { ConfirmDialog } from "@/components/shared/confirm-dialog.ts";
+import type { UiButton } from "@/components/ui/ui-button.ts";
+import type { UiDialog } from "@/components/ui/ui-dialog.ts";
 import {
   click,
   mount,

@@ -1,18 +1,18 @@
 import { LitElement, css, html, unsafeCSS, type TemplateResult } from "lit";
 import { customElement, state } from "lit/decorators.js";
 
-import "./employee-form.ts";
-import "./employee-details.ts";
-import "./components/ui/ui-button.ts";
-import "./components/shared/toast.ts";
+import "./components/employee-form.ts";
+import "./components/employee-details.ts";
+import "@/components/ui/ui-button.ts";
+import "@/components/shared/toast.ts";
 
-import type { Employee, NewEmployee } from "./types/employee-types.ts";
-import type { ToastHost, ToastVariant } from "./components/shared/toast.ts";
-import { generateThemeCSSVariables } from "./theme/colors.js";
-import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "./theme/layout.js";
+import type { Employee, NewEmployee } from "./employee-types.ts";
+import type { ToastHost, ToastVariant } from "@/components/shared/toast.ts";
+import { generateThemeCSSVariables } from "@/theme/colors.js";
+import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "@/theme/layout.js";
 
-@customElement("employee-page")
-export class EmployeePage extends LitElement {
+@customElement("employee-widget")
+export class EmployeeWidget extends LitElement {
   @state()
   private employees: Employee[] = [];
 
@@ -157,6 +157,27 @@ export class EmployeePage extends LitElement {
     this.openForm();
   }
 
+  /**
+   * The hero button doubles as the dismiss control, so it closes the panel when
+   * it is already showing instead of re-opening it.
+   */
+  private handleToggleFormRequested(event: Event) {
+    event.stopPropagation();
+
+    if (this.isFormOpen) {
+      this.closeForm();
+
+      return;
+    }
+
+    this.openForm();
+  }
+
+  private handleFormClose(event: Event) {
+    event.stopPropagation();
+    this.closeForm();
+  }
+
   private handleEmployeeAdded(event: CustomEvent<NewEmployee>) {
     event.stopPropagation();
 
@@ -234,9 +255,10 @@ export class EmployeePage extends LitElement {
             size="medium"
             shape="rounded"
             type="button"
-            @button-click=${this.handleAddEmployeeRequested}
+            aria-expanded=${this.isFormOpen ? "true" : "false"}
+            @button-click=${this.handleToggleFormRequested}
           >
-            + Add Employee
+            ${this.isFormOpen ? "Close Form" : "+ Add Employee"}
           </ui-button>
         </div>
       </header>
@@ -246,12 +268,13 @@ export class EmployeePage extends LitElement {
   private get formPanelTemplate(): TemplateResult {
     return html`
       <div class="form-panel ${this.isFormOpen ? "open" : ""}">
-        <div class="form-panel-inner">
+        <div class="form-panel-inner" ?inert=${!this.isFormOpen}>
           <employee-form
             .employeeToEdit=${this.employeeBeingEdited}
             @employee-added=${this.handleEmployeeAdded}
             @employee-updated=${this.handleEmployeeUpdated}
             @edit-cancelled=${this.handleEditCancelled}
+            @form-close=${this.handleFormClose}
           ></employee-form>
         </div>
       </div>
