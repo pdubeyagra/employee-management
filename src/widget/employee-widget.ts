@@ -4,17 +4,32 @@ import { customElement, property, state } from "lit/decorators.js";
 import "@/features/employee/components/employee-form.ts";
 import "@/features/employee/components/employee-details.ts";
 import "@/components/ui/ui-button.ts";
+import "@/components/ui/ui-dropdown.ts";
 import "@/components/shared/toast.ts";
 
+import {
+  STORAGE_LABELS,
+  STORAGE_OPTIONS,
+  createStore,
+  isStorageKind,
+} from "@/storage/create-store.ts";
+
 import type { Employee, NewEmployee } from "@/types/employee-types.ts";
+import type { DataStore, StorageKind } from "@/types/storage-types.ts";
+import type { DropdownChangeDetail } from "@/components/ui/ui-dropdown.ts";
 import type { ToastHost, ToastVariant } from "@/components/shared/toast.ts";
 import { generateThemeCSSVariables } from "@/theme/colors.js";
 import { LAYOUT_CONFIG, generateLayoutCSSVariables } from "@/theme/layout.js";
+
+export const EMPLOYEE_STORAGE_KEY = "employees";
 
 @customElement("employee-widget")
 export class EmployeeWidget extends LitElement {
   @property({ type: Boolean })
   loading = false;
+
+  @property({ type: String })
+  storage: StorageKind = "state";
 
   @state()
   private employees: Employee[] = [];
@@ -24,6 +39,14 @@ export class EmployeeWidget extends LitElement {
 
   @state()
   private isFormOpen = false;
+
+  @state()
+  private reading = false;
+
+  private store: DataStore<Employee> = createStore<Employee>(
+    "state",
+    EMPLOYEE_STORAGE_KEY,
+  );
 
   static styles = css`
     :host {
@@ -101,12 +124,33 @@ export class EmployeeWidget extends LitElement {
     }
 
     .hero-actions {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: var(--spacing-lg);
       flex-shrink: 0;
     }
 
     .hero-actions ui-button {
       --color-primary: white;
       --color-text-on-primary: var(--color-primary);
+    }
+
+    .storage-picker {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+
+    .storage-label {
+      color: rgba(255, 255, 255, 0.85);
+      font-size: var(--font-size-sm);
+      line-height: var(--line-height-tight);
+      white-space: nowrap;
+    }
+
+    .storage-picker ui-dropdown {
+      min-width: 160px;
     }
 
     .form-panel {
@@ -145,6 +189,71 @@ export class EmployeeWidget extends LitElement {
       }
     }
   `;
+
+  connectedCallback() {
+    super.connectedCallback();
+    void this.adoptStorage(this.storage);
+  }
+
+  protected willUpdate(changed: Map<string, unknown>) {
+    if (changed.has("storage") && changed.get("storage") !== undefined) {
+      void this.adoptStorage(this.storage);
+    }
+  }
+
+  private loadToken = 0;
+
+  private async adoptStorage(kind: StorageKind) {
+    const token = ++this.loadToken;
+
+    this.store = createStore<Employee>(kind, EMPLOYEE_STORAGE_KEY);
+    this.reading = true;
+    this.closeForm();
+
+    try {
+      const items = await this.store.read();
+
+      if (token === this.loadToken) {
+        this.employees = items;
+      }
+    } finally {
+      this.reading = false;
+    }
+
+    if (this.store.kind !== this.store.requestedKind) {
+      this.showToast(
+        `${STORAGE_LABELS[kind]} is unavailable here, using memory instead.`,
+        "error",
+      );
+    }
+  }
+
+  private async persist(employees: Employee[]) {
+    this.loadToken += 1;
+    this.employees = employees;
+
+    await this.store.write(employees);
+  }
+
+  private handleStorageChange(event: CustomEvent<DropdownChangeDetail>) {
+    event.stopPropagation();
+
+    const value = event.detail.value;
+
+    if (!isStorageKind(value) || value === this.storage) {
+      return;
+    }
+
+    this.storage = value;
+
+    this.dispatchEvent(
+      new CustomEvent<StorageKind>("storage-change", {
+        detail: value,
+        bubbles: true,
+        composed: true,
+      }),
+    );
+  }
 
   private openForm() {
     this.isFormOpen = true;
@@ -185,7 +294,7 @@ export class EmployeeWidget extends LitElement {
       ...event.detail,
     };
 
-    this.employees = [...this.employees, employee];
+    void this.persist([...this.employees, employee]);
     this.closeForm();
   }
 
@@ -201,8 +310,10 @@ export class EmployeeWidget extends LitElement {
 
     const updatedEmployee = event.detail;
 
-    this.employees = this.employees.map((employee) =>
-      employee.id === updatedEmployee.id ? updatedEmployee : employee,
+    void this.persist(
+      this.employees.map((employee) =>
+        employee.id === updatedEmployee.id ? updatedEmployee : employee,
+      ),
     );
 
     this.closeForm();
@@ -225,7 +336,7 @@ export class EmployeeWidget extends LitElement {
       return;
     }
 
-    this.employees = remaining;
+    void this.persist(remaining);
 
     if (this.employeeBeingEdited?.id === employeeToDelete.id) {
       this.closeForm();
@@ -249,6 +360,19 @@ export class EmployeeWidget extends LitElement {
         </div>
 
         <div class="hero-actions">
+          <div class="storage-picker">
+            <span class="storage-label" aria-hidden="true">Store in</span>
+
+            <ui-dropdown
+              compact
+              tone="inverse"
+              label="Storage"
+              .options=${STORAGE_OPTIONS}
+              .value=${this.storage}
+              @dropdown-change=${this.handleStorageChange}
+            ></ui-dropdown>
+          </div>
+
           <ui-button
             variant="secondary"
             size="medium"
@@ -291,7 +415,7 @@ export class EmployeeWidget extends LitElement {
 
             <employee-details
               .employees=${this.employees}
-              .loading=${this.loading}
+              .loading=${this.loading || this.reading}
               @employee-delete=${this.handleEmployeeDelete}
               @employee-edit=${this.handleEmployeeEdit}
               @add-employee=${this.handleAddEmployeeRequested}

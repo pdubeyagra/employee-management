@@ -1,6 +1,7 @@
 import "global-jsdom/register";
 
 import { cleanupFixtures } from "./helpers/dom.ts";
+import { resetMemoryStores } from "@/storage/memory-store.ts";
 
 const eventConstructors = [
   "Event",
@@ -24,5 +25,13 @@ for (const name of eventConstructors) {
 export const mochaHooks = {
   afterEach() {
     cleanupFixtures();
+    resetMemoryStores();
+
+    try {
+      globalThis.localStorage?.clear();
+      globalThis.sessionStorage?.clear();
+    } catch {
+      return;
+    }
   },
 };

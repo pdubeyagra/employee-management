@@ -6,6 +6,7 @@ import type { EmployeeForm } from "@/features/employee/components/employee-form.
 import type { EmployeeDetails } from "@/features/employee/components/employee-details.ts";
 import type { NewEmployee } from "@/types/employee-types.ts";
 import type { UiButton } from "@/components/ui/ui-button.ts";
+import type { UiDropdown } from "@/components/ui/ui-dropdown.ts";
 import type { AppToast } from "@/components/shared/toast.ts";
 import {
   click,
@@ -471,5 +472,170 @@ describe("<employee-widget> loading", () => {
 
     expect(widget.loading).to.equal(true);
     expect(detailsOf(widget).loading).to.equal(true);
+  });
+});
+
+describe("<employee-widget> storage picker", () => {
+  const storageSelect = (widget: EmployeeWidget) =>
+    queryRequired<UiDropdown>(widget, ".storage-picker ui-dropdown");
+
+  async function chooseStorage(widget: EmployeeWidget, kind: string) {
+    const dropdown = storageSelect(widget);
+    await dropdown.updateComplete;
+
+    click(queryRequired<HTMLButtonElement>(dropdown, ".trigger"));
+    await dropdown.updateComplete;
+
+    const index = dropdown.options.findIndex(
+      (option) => option.value === kind,
+    );
+
+    click(queryRequired<HTMLElement>(dropdown, `.option:nth-child(${index + 1})`));
+
+    await widget.updateComplete;
+    await settle(widget);
+  }
+
+  const settle = async (widget: EmployeeWidget) => {
+    await Promise.resolve();
+    await Promise.resolve();
+    await widget.updateComplete;
+  };
+
+  it("offers every storage backend", async () => {
+    const widget = await mount<EmployeeWidget>("employee-widget");
+    const select = storageSelect(widget);
+
+    expect(select.options.map((option) => option.value)).to.deep.equal([
+      "state",
+      "session",
+      "local",
+      "indexed",
+    ]);
+  });
+
+  it("starts in memory", async () => {
+    const widget = await mount<EmployeeWidget>("employee-widget");
+
+    expect(widget.storage).to.equal("state");
+    expect(storageSelect(widget).value).to.equal("state");
+  });
+
+  it("switches the backend and announces it", async () => {
+    const widget = await mount<EmployeeWidget>("employee-widget");
+    const events = recordEvents<string>(widget, "storage-change");
+
+    await chooseStorage(widget, "local");
+
+    expect(widget.storage).to.equal("local");
+    expect(events).to.have.lengthOf(1);
+    expect(events[0]!.detail).to.equal("local");
+  });
+
+  it("writes new employees into the chosen backend", async () => {
+    const widget = await mount<EmployeeWidget>("employee-widget");
+
+    await chooseStorage(widget, "local");
+    await submitNew(widget, ADA);
+    await settle(widget);
+
+    const raw = globalThis.localStorage.getItem("employees");
+
+    expect(raw, "the roster should be persisted").to.be.a("string");
+    expect(JSON.parse(raw!)).to.have.lengthOf(1);
+    expect(JSON.parse(raw!)[0]).to.include(ADA);
+  });
+
+  it("keeps each backend's roster separate", async () => {
+    const widget = await mount<EmployeeWidget>("employee-widget");
+
+    await chooseStorage(widget, "local");
+    await submitNew(widget, ADA);
+    await settle(widget);
+
+    expect(roster(widget)).to.have.lengthOf(1);
+
+    await chooseStorage(widget, "session");
+
+    expect(roster(widget), "session storage is its own bucket").to.have.lengthOf(
+      0,
+    );
+
+    await chooseStorage(widget, "local");
+
+    expect(roster(widget), "local storage still has its row").to.have.lengthOf(
+      1,
+    );
+  });
+
+  it("reloads a persisted roster on a fresh mount", async () => {
+    globalThis.localStorage.setItem(
+      "employees",
+      JSON.stringify([{ id: "kept", ...ADA }]),
+    );
+
+    const widget = await mount<EmployeeWidget>("employee-widget", {
+      storage: "local",
+    });
+
+    await settle(widget);
+
+    expect(roster(widget)).to.have.lengthOf(1);
+    expect(roster(widget)[0]!.id).to.equal("kept");
+  });
+
+  it("persists an edit and a delete", async () => {
+    const widget = await mount<EmployeeWidget>("employee-widget", {
+      storage: "session",
+    });
+    await settle(widget);
+
+    await submitNew(widget, ADA);
+    await settle(widget);
+
+    const added = roster(widget)[0]!;
+
+    await emitFromForm(widget, "employee-updated", {
+      ...added,
+      name: "Ada L.",
+    });
+    await settle(widget);
+
+    expect(
+      JSON.parse(globalThis.sessionStorage.getItem("employees")!)[0].name,
+    ).to.equal("Ada L.");
+
+    await emitFromDetails(widget, "employee-delete", added);
+    await settle(widget);
+
+    expect(
+      JSON.parse(globalThis.sessionStorage.getItem("employees")!),
+    ).to.have.lengthOf(0);
+  });
+
+  it("closes an open form when the backend changes", async () => {
+    const widget = await mount<EmployeeWidget>("employee-widget");
+
+    await pressHeroButton(widget);
+    expect(isFormOpen(widget)).to.equal(true);
+
+    await chooseStorage(widget, "local");
+
+    expect(isFormOpen(widget)).to.equal(false);
+  });
+
+  it("falls back to memory and says so when a backend is missing", async () => {
+    const widget = await mount<EmployeeWidget>("employee-widget");
+
+    await chooseStorage(widget, "indexed");
+
+    expect(widget.storage).to.equal("indexed");
+    expect(toastOf(widget).open).to.equal(true);
+    expect(toastOf(widget).message).to.contain("IndexedDB is unavailable");
+
+    await submitNew(widget, ADA);
+    await settle(widget);
+
+    expect(roster(widget), "it still works, just in memory").to.have.lengthOf(1);
   });
 });
