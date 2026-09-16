@@ -286,44 +286,63 @@ export class EmployeeWidget extends LitElement {
     this.closeForm();
   }
 
-  private handleEmployeeAdded(event: CustomEvent<NewEmployee>) {
+  private async handleEmployeeAdded(event: CustomEvent<NewEmployee>) {
     event.stopPropagation();
 
-    const employee: Employee = {
-      id: crypto.randomUUID(),
-      ...event.detail,
-    };
+    try {
+      const employee: Employee = {
+        id: crypto.randomUUID(),
+        ...event.detail,
+      };
 
-    void this.persist([...this.employees, employee]);
-    this.closeForm();
+      await this.persist([...this.employees, employee]);
+
+      this.closeForm();
+    } catch (error) {
+      console.error("Failed to add employee:", error);
+
+      this.showToast("Failed to add employee", "error");
+    }
   }
 
-  private handleEmployeeEdit(event: CustomEvent<Employee>) {
+  private async handleEmployeeEdit(event: CustomEvent<Employee>) {
     event.stopPropagation();
 
-    this.employeeBeingEdited = event.detail;
-    this.isFormOpen = true;
+    try {
+      this.employeeBeingEdited = event.detail;
+      this.isFormOpen = true;
+    } catch (error) {
+      console.error("Failed to edit employee:", error);
+
+      this.showToast("Failed to open employee for editing", "error");
+    }
   }
 
-  private handleEmployeeUpdated(event: CustomEvent<Employee>) {
+  private async handleEmployeeUpdated(event: CustomEvent<Employee>) {
     event.stopPropagation();
 
-    const updatedEmployee = event.detail;
+    try {
+      const updatedEmployee = event.detail;
 
-    void this.persist(
-      this.employees.map((employee) =>
+      const employees = this.employees.map((employee) =>
         employee.id === updatedEmployee.id ? updatedEmployee : employee,
-      ),
-    );
+      );
 
-    this.closeForm();
+      await this.persist(employees);
+
+      this.closeForm();
+    } catch (error) {
+      console.error("Failed to update employee:", error);
+
+      this.showToast("Failed to update employee", "error");
+    }
   }
 
   private handleEditCancelled() {
     this.closeForm();
   }
 
-  private handleEmployeeDelete(event: CustomEvent<Employee>) {
+  private async handleEmployeeDelete(event: CustomEvent<Employee>) {
     event.stopPropagation();
 
     const employeeToDelete = event.detail;
@@ -333,16 +352,22 @@ export class EmployeeWidget extends LitElement {
     );
 
     if (remaining.length === this.employees.length) {
+      this.showToast("Employee not found.", "error");
       return;
     }
 
-    void this.persist(remaining);
+    try {
+      await this.persist(remaining);
 
-    if (this.employeeBeingEdited?.id === employeeToDelete.id) {
-      this.closeForm();
+      if (this.employeeBeingEdited?.id === employeeToDelete.id) {
+        this.closeForm();
+      }
+
+      this.showToast("Employee deleted successfully!", "success");
+    } catch (error) {
+      console.error("Failed to delete employee:", error);
+      this.showToast("Failed to delete employee. Please try again.", "error");
     }
-
-    this.showToast("Employee deleted successfully!", "success");
   }
 
   private showToast(message: string, variant: ToastVariant) {
