@@ -81,7 +81,7 @@ export const remove = (req: Request<{ id: string }>, res: Response): void => {
 
   res.status(200).json({
     success: true,
-    message: "Employee moved to trash",
+    message: "Employee deleted successfully",
     data: employee,
   });
 };
